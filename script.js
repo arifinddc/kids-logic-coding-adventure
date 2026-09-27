@@ -91,8 +91,11 @@ const app = {
     // ==========================================
     initGame1() {
         const size = 4;
-        let startPos = { x: 0, y: 0 };
-        let playerPos = { x: 0, y: 0 };
+        let startPos = { 
+            x: Math.floor(Math.random() * 2), 
+            y: Math.floor(Math.random() * 2) 
+        };
+        let playerPos = { ...startPos };
         let targetPos = { 
             x: Math.floor(Math.random() * 2) + 2, 
             y: Math.floor(Math.random() * 2) + 2 
@@ -483,8 +486,9 @@ const app = {
     // ==========================================
     initGame6() {
         const size = 6;
-        let playerPos = 0;
-        let targetPos = Math.floor(Math.random() * 2) + 3; // 3 or 4
+        let startPos = Math.floor(Math.random() * 2); // 0 atau 1
+        let playerPos = startPos;
+        let targetPos = Math.floor(Math.random() * 2) + 4; // 4 atau 5
         let loopCount = 1;
         let isRunning = false;
 
@@ -528,7 +532,7 @@ const app = {
         this.runLoop6 = () => {
             if(isRunning) return;
             isRunning = true;
-            playerPos = 0;
+            playerPos = startPos;
             let currentStep = 0;
 
             const step = () => {
@@ -537,7 +541,7 @@ const app = {
                     let isWin = playerPos === targetPos;
                     this.showFeedback(isWin);
                     if (!isWin) {
-                        setTimeout(() => { playerPos = 0; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
+                        setTimeout(() => { playerPos = startPos; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
                     }
                     return;
                 }
@@ -546,7 +550,7 @@ const app = {
                 if (playerPos >= size) {
                     isRunning = false;
                     this.showFeedback(false); // nabrak ujung
-                    setTimeout(() => { playerPos = 0; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
+                    setTimeout(() => { playerPos = startPos; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
                     return;
                 }
 
@@ -649,12 +653,29 @@ const app = {
     // ==========================================
     initGame8() {
         const size = 4;
-        let startPos = {x:0, y:0};
-        let targetPos = {x:3, y:1};
+        let startPos = { 
+            x: Math.floor(Math.random() * 2), 
+            y: Math.floor(Math.random() * 2) 
+        };
+        let targetPos = { 
+            x: Math.floor(Math.random() * 2) + 2, 
+            y: Math.floor(Math.random() * 2) + 2 
+        };
         
-        // Benar: R, R, R, D
-        // Buggy: R, D, R, D
-        this.g8Seq = ['R', 'D', 'R', 'D'];
+        // Buat path yang benar (bentuk L)
+        let correctSeq = [];
+        for(let i=0; i < targetPos.x - startPos.x; i++) correctSeq.push('R');
+        for(let i=0; i < targetPos.y - startPos.y; i++) correctSeq.push('D');
+        
+        // Acak sedikit urutannya agar tidak selalu R dulu baru D (tapi pastikan tetap jalan mulus)
+        correctSeq.sort(() => 0.5 - Math.random());
+        
+        // Suntikkan 1 buah bug di indeks acak
+        this.g8Seq = [...correctSeq];
+        let bugIdx = Math.floor(Math.random() * this.g8Seq.length);
+        let bugOptions = ['U', 'D', 'L', 'R'].filter(c => c !== this.g8Seq[bugIdx]);
+        this.g8Seq[bugIdx] = bugOptions[Math.floor(Math.random() * bugOptions.length)];
+        
         let isRunning = false;
 
         const drawGrid = (pX, pY) => {
