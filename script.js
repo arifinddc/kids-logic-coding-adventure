@@ -84,30 +84,41 @@ const SFX = {
             osc.stop(ctx.currentTime + duration);
         } catch(e) {}
     },
+    vibrate(pattern) {
+        if (navigator.vibrate) {
+            navigator.vibrate(pattern);
+        }
+    },
     click() {
+        this.vibrate(10);
         this._play(800, 'sine', 0.08, 0.2);
     },
     correct() {
+        this.vibrate([30, 50, 30]);
         const ctx = this._getCtx();
         [523, 659, 784].forEach((f, i) => {
             setTimeout(() => this._play(f, 'sine', 0.2, 0.25), i * 100);
         });
     },
     wrong() {
+        this.vibrate([50, 100, 50]);
         this._play(200, 'square', 0.3, 0.15);
         setTimeout(() => this._play(150, 'square', 0.4, 0.15), 150);
     },
     buy() {
+        this.vibrate([30, 50, 50, 50, 50]);
         [1047, 1319, 1568].forEach((f, i) => {
             setTimeout(() => this._play(f, 'sine', 0.15, 0.2), i * 80);
         });
     },
     reward() {
+        this.vibrate([40, 50, 40, 50, 60]);
         [523, 659, 784, 1047].forEach((f, i) => {
             setTimeout(() => this._play(f, 'triangle', 0.25, 0.2), i * 120);
         });
     },
     step() {
+        this.vibrate(10);
         this._play(440, 'sine', 0.06, 0.1);
     }
 };
@@ -219,12 +230,43 @@ const app = {
         
         // SFX Click Global
         document.addEventListener('click', (e) => {
-            if (e.target.closest('button') || e.target.closest('.menu-btn') || e.target.closest('.skin-card') || e.target.closest('.control-btn')) {
-                // Untuk tombol spesifik, SFX click ditimpa dengan SFX yang lebih spesifik
+            if (e.target.closest('button') || e.target.closest('.menu-btn') || e.target.closest('.skin-card') || e.target.closest('.control-btn') || e.target.closest('.gacha-egg')) {
                 if (e.target.closest('#daily-claim-btn')) return; 
                 SFX.click();
             }
         });
+
+        // PWA Install Prompt Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Hanya tampilkan jika belum pernah di-dismiss hari ini (bisa pakai localStorage, tapi sementara selalu tampilkan)
+            setTimeout(() => {
+                document.getElementById('install-popup').classList.add('show');
+            }, 2000);
+        });
+
+        document.getElementById('btn-install').addEventListener('click', async () => {
+            const popup = document.getElementById('install-popup');
+            popup.classList.remove('show');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+            }
+        });
+
+        document.getElementById('btn-install-close').addEventListener('click', () => {
+            document.getElementById('install-popup').classList.remove('show');
+        });
+        
+        // Kunci Rotasi Layar jika didukung
+        try {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('portrait').catch(()=>{});
+            }
+        } catch(err) {}
     },
 
     updateScoreDisplays() {
@@ -331,9 +373,16 @@ const app = {
         if (isCorrect) {
             SFX.correct();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            this.el.feedbackMessage.innerText = "Yey, Jawabanmu Benar! 🎉";
+            
+            // Balancing Ekonomi
+            let reward = 10;
+            if (this.currentGame >= 1 && this.currentGame <= 4) reward = 20;
+            if (this.currentGame >= 5 && this.currentGame <= 8) reward = 35;
+            if (this.currentGame >= 9 && this.currentGame <= 12) reward = 50;
+
+            this.el.feedbackMessage.innerHTML = `Yey, Jawabanmu Benar! 🎉<br><span style="font-size:1.5rem; color:#f1c40f;">+${reward} Koin</span>`;
             this.el.feedbackMessage.style.color = "var(--primary)";
-            this.score += 10;
+            this.score += reward;
             const data = loadData();
             data.totalScore = this.score;
             saveData(data);
@@ -1639,7 +1688,17 @@ const app = {
             { key: 'animals', title: '🦁 Hewan Bonus (Game 3)' }
         ];
 
-        let html = '';
+        let html = `
+            <div class="gacha-container">
+                <h3 style="margin-bottom:10px;">🎁 Gacha Karakter Misteri (⭐200)</h3>
+                <p style="margin-bottom:20px; font-size:1.1rem; line-height:1.4;">Buka telur misteri untuk mendapatkan karakter/hewan acak!</p>
+                <div>
+                    <div id="gacha-egg" class="gacha-egg" onclick="app.rollGacha()">🥚</div>
+                    <div id="gacha-result" class="gacha-result"></div>
+                </div>
+            </div>
+            <h3 style="margin: 20px 0 10px 0; color: var(--primary); text-align:center;">Atau Beli Langsung:</h3>
+        `;
         for (const cat of categories) {
             html += `<div class="shop-category">`;
             html += `<div class="shop-category-title">${cat.title}</div>`;
@@ -1679,6 +1738,61 @@ const app = {
             html += `</div></div>`;
         }
         this.el.shopContent.innerHTML = html;
+    },
+
+    rollGacha() {
+        if (this._isRollingGacha) return;
+        const data = loadData();
+        if (data.totalScore < 200) {
+            SFX.wrong();
+            this.showNotif("❌ Koin tidak cukup! Butuh ⭐200 untuk Gacha.");
+            return;
+        }
+
+        let unowned = [];
+        for (const catKey in SKIN_CATALOG) {
+            SKIN_CATALOG[catKey].forEach(item => {
+                if (!data.ownedSkins[catKey].includes(item.id)) {
+                    unowned.push({ category: catKey, item: item });
+                }
+            });
+        }
+
+        if (unowned.length === 0) {
+            this.showNotif("🎉 Luar biasa! Kamu sudah memiliki SEMUA karakter di toko!");
+            return;
+        }
+
+        this._isRollingGacha = true;
+        data.totalScore -= 200;
+        this.score = data.totalScore;
+        this.updateScoreDisplays();
+        saveData(data);
+
+        SFX.click();
+        const egg = document.getElementById('gacha-egg');
+        const result = document.getElementById('gacha-result');
+        egg.classList.add('shake');
+        
+        setTimeout(() => {
+            egg.classList.remove('shake');
+            egg.style.display = 'none';
+            result.style.display = 'inline-block';
+            
+            const win = unowned[Math.floor(Math.random() * unowned.length)];
+            data.ownedSkins[win.category].push(win.item.id);
+            saveData(data);
+            
+            result.innerHTML = `${win.item.emoji}<br><span style="font-size:1.5rem; display:block; margin-top:10px; color:white; text-shadow:1px 1px 2px #333;">Dapat: ${win.item.name}</span>`;
+            SFX.buy();
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
+            setTimeout(() => {
+                this._isRollingGacha = false;
+                this.renderShop();
+            }, 3000);
+
+        }, 1500);
     },
 
     buySkin(category, itemId) {

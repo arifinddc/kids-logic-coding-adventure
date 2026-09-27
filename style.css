@@ -14,6 +14,9 @@
     margin: 0;
     padding: 0;
     font-family: 'Fredoka', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
 }
 
 body {
@@ -606,4 +609,66 @@ h2#game-title {
     }
     .skin-card .skin-emoji { font-size: 2.2rem; }
     .skin-card .skin-name { font-size: 0.75rem; }
+}
+
+/* PWA Native Features */
+#install-popup {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 9999;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    border: 3px solid var(--primary);
+    animation: bounceIn 0.5s ease;
+}
+
+#install-popup.show {
+    display: block;
+}
+
+.gacha-container {
+    background: linear-gradient(135deg, #ffe66d, #ff6b6b);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    color: white;
+}
+
+.gacha-egg {
+    font-size: 5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: inline-block;
+    filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+}
+
+.gacha-egg:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.gacha-egg.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0) rotate(-5deg); }
+    20%, 80% { transform: translate3d(2px, 0, 0) rotate(5deg); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0) rotate(-5deg); }
+    40%, 60% { transform: translate3d(4px, 0, 0) rotate(5deg); }
+}
+
+.gacha-result {
+    font-size: 6rem;
+    display: none;
+    animation: zoomIn 0.5s ease;
 }

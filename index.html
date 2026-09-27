@@ -147,6 +147,16 @@
                 <button class="btn btn-primary" onclick="app.closeNotif()">OK!</button>
             </div>
         </div>
+
+        <!-- PWA Install Popup -->
+        <div id="install-popup">
+            <h3 style="margin-bottom:10px; color:var(--primary);">🌟 Install Kids Coding</h3>
+            <p style="margin-bottom:15px; font-size:0.9rem; color:var(--text-color);">Tambahkan ke Home Screen agar bisa dimainkan offline kapan saja!</p>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button id="btn-install" style="background:var(--secondary); color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer; flex:1;">Install</button>
+                <button id="btn-install-close" style="background:#ddd; color:#333; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer; flex:1;">Nanti Saja</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
