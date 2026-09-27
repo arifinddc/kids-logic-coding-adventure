@@ -146,8 +146,26 @@ const SFX = {
 // FUNGSI PENYIMPANAN (localStorage)
 // ==========================================
 function loadData() {
-    const raw = localStorage.getItem('kidsCodingData');
-    if (raw) return JSON.parse(raw);
+    let raw = localStorage.getItem('kidsCodingData');
+    if (!raw) {
+        // Fallback backward compatibility for plain text format
+        raw = localStorage.getItem('kidsCodingData_old'); 
+    }
+    
+    if (raw) {
+        try {
+            // Coba parse sebagai base64 (Obfuscated)
+            return JSON.parse(decodeURIComponent(atob(raw)));
+        } catch (e) {
+            try {
+                // Fallback jika data masih berbentuk plain JSON (versi lama)
+                const parsed = JSON.parse(raw);
+                saveData(parsed); // Re-save with obfuscation
+                return parsed;
+            } catch (err) {}
+        }
+    }
+    
     return {
         totalScore: 0,
         ownedSkins: {
@@ -169,7 +187,8 @@ function loadData() {
 }
 
 function saveData(data) {
-    localStorage.setItem('kidsCodingData', JSON.stringify(data));
+    const obfuscated = btoa(encodeURIComponent(JSON.stringify(data)));
+    localStorage.setItem('kidsCodingData', obfuscated);
 }
 
 // ==========================================
@@ -347,6 +366,9 @@ const app = {
     },
 
     hideAllScreens() {
+        if (this.mpBugInterval) clearInterval(this.mpBugInterval);
+        if (this._dailyTimer) clearInterval(this._dailyTimer);
+        
         this.el.mainMenu.classList.remove('active');
         this.el.gameScreen.classList.remove('active');
         this.el.shopScreen.classList.remove('active');
