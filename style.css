@@ -417,6 +417,7 @@ h2#game-title {
 }
 .shop-btn { color: #e17055; }
 .locker-btn { color: #6c5ce7; }
+.daily-btn { color: #00b894; }
 .menu-score-display {
     font-size: 1.4rem;
     font-weight: 700;

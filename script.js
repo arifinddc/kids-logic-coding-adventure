@@ -56,12 +56,46 @@ function loadData() {
             target: 'house',
             robot: 'robot',
             battery: 'battery'
-        }
+        },
+        lastDailyClaimDate: null,
+        dailyStreak: 0
     };
 }
 
 function saveData(data) {
     localStorage.setItem('kidsCodingData', JSON.stringify(data));
+}
+
+// ==========================================
+// POOL VIDEO DAILY MISSION
+// ==========================================
+const DAILY_VIDEOS = [
+    'https://www.youtube.com/embed/06fnydligHg',
+    'https://www.youtube.com/embed/Me94LXczxbg',
+    'https://www.youtube.com/embed/BvLZJ3lChls',
+    'https://www.youtube.com/embed/PCkir5b4PB4'
+];
+
+const STREAK_MILESTONES = [7, 15, 30, 45, 60];
+const STREAK_BONUS = 20;
+
+function getDailyVideoIndex() {
+    // Menggunakan tanggal sebagai seed agar video konsisten per hari tapi berubah antar hari
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+    return seed % DAILY_VIDEOS.length;
+}
+
+function getTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function isStreakMilestone(streak) {
+    if (STREAK_MILESTONES.includes(streak)) return true;
+    // Kelipatan 15 setelah 60
+    if (streak > 60 && streak % 15 === 0) return true;
+    return false;
 }
 
 // ==========================================
@@ -85,14 +119,17 @@ const app = {
         gameScreen: document.getElementById('game-screen'),
         shopScreen: document.getElementById('shop-screen'),
         lockerScreen: document.getElementById('locker-screen'),
+        dailyScreen: document.getElementById('daily-screen'),
         gameTitle: document.getElementById('game-title'),
         gameContent: document.getElementById('game-content'),
         shopContent: document.getElementById('shop-content'),
         lockerContent: document.getElementById('locker-content'),
+        dailyContent: document.getElementById('daily-content'),
         score: document.getElementById('score'),
         menuScore: document.getElementById('menu-score'),
         shopScore: document.getElementById('shop-score'),
         lockerScore: document.getElementById('locker-score'),
+        dailyScore: document.getElementById('daily-score'),
         feedbackOverlay: document.getElementById('feedback-overlay'),
         feedbackMessage: document.getElementById('feedback-message'),
         notifOverlay: document.getElementById('notif-overlay'),
@@ -110,6 +147,7 @@ const app = {
         this.el.menuScore.innerText = this.score;
         this.el.shopScore.innerText = this.score;
         this.el.lockerScore.innerText = this.score;
+        this.el.dailyScore.innerText = this.score;
     },
 
     hideAllScreens() {
@@ -117,6 +155,7 @@ const app = {
         this.el.gameScreen.classList.remove('active');
         this.el.shopScreen.classList.remove('active');
         this.el.lockerScreen.classList.remove('active');
+        this.el.dailyScreen.classList.remove('active');
     },
 
     startGame(gameId) {
@@ -144,6 +183,12 @@ const app = {
         this.hideAllScreens();
         this.el.lockerScreen.classList.add('active');
         this.renderLocker();
+    },
+
+    showDaily() {
+        this.hideAllScreens();
+        this.el.dailyScreen.classList.add('active');
+        this.renderDaily();
     },
 
     closeNotif() {
@@ -1080,6 +1125,122 @@ const app = {
         data.activeSkin[category] = itemId;
         saveData(data);
         this.renderLocker();
+    },
+
+    // ==========================================
+    // DAILY MISSION (Misi Harian)
+    // ==========================================
+    renderDaily() {
+        const data = loadData();
+        const today = getTodayString();
+        const alreadyClaimed = data.lastDailyClaimDate === today;
+
+        if (alreadyClaimed) {
+            // Sudah diklaim hari ini
+            let streakInfo = '';
+            if (data.dailyStreak > 0) {
+                streakInfo = `<div style="font-size:1.2rem; color:#555; margin-bottom:10px;">🔥 Streak: <b>${data.dailyStreak} hari</b> berturut-turut!</div>`;
+                
+                // Cek milestone berikutnya
+                let nextMilestone = null;
+                const allMilestones = [...STREAK_MILESTONES];
+                if (data.dailyStreak >= 60) {
+                    let m = 75;
+                    while (m <= data.dailyStreak + 30) { allMilestones.push(m); m += 15; }
+                }
+                for (const ms of allMilestones) {
+                    if (ms > data.dailyStreak) { nextMilestone = ms; break; }
+                }
+                if (nextMilestone) {
+                    streakInfo += `<div style="font-size:1rem; color:#888; margin-bottom:15px;">🎯 Bonus berikutnya di hari ke-<b>${nextMilestone}</b> (+${STREAK_BONUS}⭐ bonus!)</div>`;
+                }
+            }
+
+            this.el.dailyContent.innerHTML = `
+                <div style="text-align:center; padding:40px 20px;">
+                    <div style="font-size:5rem; margin-bottom:20px;">✅</div>
+                    <div style="font-size:2rem; font-weight:700; color:var(--secondary); margin-bottom:15px;">Misi Hari Ini Selesai!</div>
+                    ${streakInfo}
+                    <div style="font-size:1.2rem; color:#888;">Kembali besok untuk misi baru ya! 🌙</div>
+                </div>
+            `;
+        } else {
+            // Tampilkan video hari ini
+            const videoIdx = getDailyVideoIndex();
+            const videoUrl = DAILY_VIDEOS[videoIdx];
+
+            let streakInfo = '';
+            if (data.dailyStreak > 0) {
+                streakInfo = `<div style="font-size:1rem; color:#e17055; margin-bottom:10px;">🔥 Streak saat ini: <b>${data.dailyStreak} hari</b></div>`;
+            }
+
+            this.el.dailyContent.innerHTML = `
+                <div style="text-align:center; padding:10px 20px;">
+                    <div style="font-size:1.3rem; font-weight:700; color:var(--accent2); margin-bottom:10px;">🎬 Tonton Video Hari Ini!</div>
+                    ${streakInfo}
+                    <div style="margin:0 auto 15px; max-width:320px; border-radius:15px; overflow:hidden; border:3px solid #ddd; aspect-ratio:9/16;">
+                        <iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none;"></iframe>
+                    </div>
+                    <div id="daily-timer-msg" style="font-size:1.1rem; color:#888; margin-bottom:15px;">⏳ Tonton 15 detik untuk klaim hadiah...</div>
+                    <button id="daily-claim-btn" class="run-btn" onclick="app.claimDaily()" style="padding:15px 40px; font-size:1.5rem; opacity:0.4; pointer-events:none;">🎁 Klaim +20 ⭐</button>
+                </div>
+            `;
+
+            // Timer 15 detik
+            let countdown = 15;
+            this._dailyTimer = setInterval(() => {
+                countdown--;
+                const msg = document.getElementById('daily-timer-msg');
+                const btn = document.getElementById('daily-claim-btn');
+                if (!msg || !btn) { clearInterval(this._dailyTimer); return; }
+
+                if (countdown <= 0) {
+                    clearInterval(this._dailyTimer);
+                    msg.innerHTML = '✅ Video selesai! Klaim hadiahmu sekarang!';
+                    msg.style.color = '#2ecc71';
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                } else {
+                    msg.innerHTML = `⏳ Tunggu ${countdown} detik lagi...`;
+                }
+            }, 1000);
+        }
+    },
+
+    claimDaily() {
+        const data = loadData();
+        const today = getTodayString();
+        if (data.lastDailyClaimDate === today) return; // Sudah diklaim
+
+        // Cek apakah streak berlanjut (kemarin)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+        
+        if (data.lastDailyClaimDate === yStr) {
+            data.dailyStreak += 1;
+        } else {
+            data.dailyStreak = 1; // Reset streak
+        }
+
+        let reward = 20;
+        let bonusMsg = '';
+
+        // Cek milestone
+        if (isStreakMilestone(data.dailyStreak)) {
+            reward += STREAK_BONUS;
+            bonusMsg = `\n🎊 BONUS STREAK hari ke-${data.dailyStreak}: +${STREAK_BONUS}⭐ ekstra!`;
+        }
+
+        data.lastDailyClaimDate = today;
+        data.totalScore += reward;
+        saveData(data);
+        this.score = data.totalScore;
+        this.updateScoreDisplays();
+
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        this.showNotif(`🎁 +${reward} ⭐ didapatkan!${bonusMsg}\n🔥 Streak: ${data.dailyStreak} hari`);
+        this.renderDaily(); // Re-render untuk tampilkan "selesai"
     }
 };
 

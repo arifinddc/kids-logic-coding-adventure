@@ -56,13 +56,16 @@
                     <span class="text">9. Koding Fungsi</span>
                 </button>
             </div>
-            <!-- Menu Footer: Toko & Loker -->
+            <!-- Menu Footer: Toko, Loker, Misi -->
             <div class="menu-footer">
                 <button class="menu-footer-btn shop-btn" onclick="app.showShop()">
                     <span>🛒</span> Toko
                 </button>
                 <button class="menu-footer-btn locker-btn" onclick="app.showLocker()">
                     <span>👕</span> Loker
+                </button>
+                <button class="menu-footer-btn daily-btn" onclick="app.showDaily()">
+                    <span>📅</span> Misi
                 </button>
                 <div class="menu-score-display">⭐ <span id="menu-score">0</span></div>
             </div>
@@ -88,6 +91,18 @@
                 <div class="score-display">⭐ <span id="locker-score">0</span></div>
             </div>
             <div id="locker-content">
+                <!-- Dirender oleh JavaScript -->
+            </div>
+        </div>
+
+        <!-- Daily Mission Screen -->
+        <div id="daily-screen" class="screen">
+            <div class="top-bar">
+                <button class="btn back-btn" onclick="app.showMainMenu()">⬅️ Kembali</button>
+                <h2>📅 Misi Harian</h2>
+                <div class="score-display">⭐ <span id="daily-score">0</span></div>
+            </div>
+            <div id="daily-content">
                 <!-- Dirender oleh JavaScript -->
             </div>
         </div>
