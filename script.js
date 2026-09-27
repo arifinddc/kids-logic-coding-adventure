@@ -478,55 +478,58 @@ const app = {
     },
 
     // ==========================================
-    // GAME 2: KODE WARNA (Pattern Mapping)
+    // GAME 2: KODE BENDA (Pattern Mapping Dynamic)
     // ==========================================
     initGame2() {
-        const colors = [
-            { icon: '🟦', val: 1 },
-            { icon: '🟩', val: 2 },
-            { icon: '🟥', val: 3 },
-            { icon: '🟨', val: 4 }
-        ];
+        const itemPool = ['🍎','🍌','🍇','🍉','🍍','🥭','🥥','🥝','🍒','🍓','⚽','🏀','🏈','⚾','🎾','🚗','🚕','🚙','🚌','🚒'];
+        let shuffItems = [...itemPool].sort(() => 0.5 - Math.random()).slice(0, 5); // Pick 5 items
         
-        // Generate a sequence of 3 to 4 colors
-        const seqLength = 4;
+        // Randomly assign values 1 to 9
+        let availableVals = [1,2,3,4,5,6,7,8,9].sort(() => 0.5 - Math.random());
+        
+        const dictionary = shuffItems.map((icon, idx) => {
+            return { icon: icon, val: availableVals[idx] };
+        });
+        
+        // Generate a sequence of 4 to 6 items
+        const seqLength = Math.floor(Math.random() * 3) + 4; // 4, 5, or 6
         let questionSeq = [];
         let answerSeq = [];
         
         for(let i=0; i<seqLength; i++) {
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            questionSeq.push(randomColor.icon);
-            answerSeq.push(randomColor.val);
+            const randomItem = dictionary[Math.floor(Math.random() * dictionary.length)];
+            questionSeq.push(randomItem.icon);
+            answerSeq.push(randomItem.val);
         }
 
         this.game2Answer = answerSeq;
         this.game2CurrentStep = 0;
 
         const renderDictionary = () => {
-            return colors.map(c => `<div class="dict-item"><span>${c.icon}</span><span>= ${c.val}</span></div>`).join('');
+            return dictionary.map(c => `<div class="dict-item"><span>${c.icon}</span><span>= ${c.val}</span></div>`).join('');
         };
 
         this.renderGame2Question = () => {
             return questionSeq.map((icon, index) => {
                 let displayVal = this.game2CurrentStep > index ? this.game2Answer[index] : '?';
                 let circleColor = this.game2CurrentStep > index ? '#4cd137' : 'white';
-                return `<div style="display:inline-block; text-align:center; margin: 0 10px;">
-                            <div style="font-size:4rem;">${icon}</div>
-                            <div style="font-size:2rem; border:3px dashed #ccc; border-radius:50%; width:60px; height:60px; line-height:54px; margin:auto; background:${circleColor}">${displayVal}</div>
+                return `<div style="display:inline-block; text-align:center; margin: 0 5px;">
+                            <div style="font-size:3.5rem;">${icon}</div>
+                            <div style="font-size:1.8rem; border:3px dashed #ccc; border-radius:50%; width:50px; height:50px; line-height:44px; margin:auto; background:${circleColor}">${displayVal}</div>
                         </div>`;
             }).join('');
         };
 
         this.el.gameContent.innerHTML = `
-            <div class="dictionary" style="justify-content: center; margin-bottom: 20px;">
+            <div class="dictionary" style="justify-content: center; margin-bottom: 20px; flex-wrap:wrap; gap:10px;">
                 ${renderDictionary()}
             </div>
-            <div class="subtitle" style="margin-bottom:20px;">Tekan angka sesuai dengan kode warnanya!</div>
-            <div id="game2-q" style="margin-bottom: 40px; display:flex; justify-content:center;">
+            <div class="subtitle" style="margin-bottom:20px;">Tekan angka sesuai dengan kode bendanya!</div>
+            <div id="game2-q" style="margin-bottom: 40px; display:flex; justify-content:center; flex-wrap:wrap;">
                 ${this.renderGame2Question()}
             </div>
             <div class="options-container" style="justify-content: center;">
-                ${colors.map(c => `<button class="option-btn" style="border: 4px solid var(--secondary); padding: 15px 30px; font-weight: bold; background: white;" onclick="app.checkAnswer2(${c.val})">${c.val}</button>`).join('')}
+                ${dictionary.map(c => `<button class="option-btn" style="border: 4px solid var(--secondary); padding: 15px 25px; font-weight: bold; background: white; min-width:60px;" onclick="app.checkAnswer2(${c.val})">${c.val}</button>`).join('')}
             </div>
         `;
     },
@@ -534,6 +537,7 @@ const app = {
     checkAnswer2(val) {
         if (val === this.game2Answer[this.game2CurrentStep]) {
             this.game2CurrentStep++;
+            SFX.step();
             document.getElementById('game2-q').innerHTML = this.renderGame2Question();
             if (this.game2CurrentStep >= this.game2Answer.length) {
                 setTimeout(() => this.showFeedback(true), 300);
@@ -613,19 +617,26 @@ const app = {
     // ==========================================
     initGame4() {
         const shapes = [
-            { icon: '▲', val: 2 },
-            { icon: '◼', val: 3 },
-            { icon: '●', val: 4 }
+            { icon: '▲' }, { icon: '◼' }, { icon: '●' },
+            { icon: '★' }, { icon: '♥' }, { icon: '◆' }
         ];
         
         const colors = [
-            { name: 'Merah', code: '#e74c3c', val: 2 },
-            { name: 'Biru', code: '#3498db', val: 3 },
-            { name: 'Kuning', code: '#f1c40f', val: 4 }
+            { name: 'Merah', code: '#e74c3c' },
+            { name: 'Biru', code: '#3498db' },
+            { name: 'Kuning', code: '#f1c40f' },
+            { name: 'Hijau', code: '#2ecc71' },
+            { name: 'Ungu', code: '#9b59b6' },
+            { name: 'Oranye', code: '#e67e22' }
         ];
         
-        let shuffShapes = [...shapes].sort(() => 0.5 - Math.random());
-        let shuffColors = [...colors].sort(() => 0.5 - Math.random());
+        let shuffShapes = [...shapes].sort(() => 0.5 - Math.random()).slice(0, 3);
+        let shuffColors = [...colors].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        // Assign random values
+        let availableVals = [1,2,3,4,5,6,7,8,9].sort(() => 0.5 - Math.random());
+        shuffShapes.forEach(s => s.val = availableVals.pop());
+        shuffColors.forEach(c => c.val = availableVals.pop());
         
         // Dictionary HTML
         let dictHtml = `
@@ -652,7 +663,7 @@ const app = {
         let val2 = shape2.val + color2.val;
         let answer = val1 + val2;
 
-        let options = [answer, answer + 1, answer - 1, answer + 2].filter(v => v > 0);
+        let options = [answer, answer + 1, answer - 1, answer + 2, answer - 2].filter(v => v > 0);
         options = [...new Set(options)].slice(0, 3);
         if(!options.includes(answer)) options[0] = answer;
         options.sort(() => 0.5 - Math.random());
@@ -1240,67 +1251,117 @@ const app = {
     // GAME 9: KODING FUNGSI (Functions)
     // ==========================================
     initGame9() {
-        const items = [
-            { emoji: '🍎', name: 'PanenApel', action: 'Petik Apel' },
-            { emoji: '🐟', name: 'BeriMakan', action: 'Beri Ikan' },
-            { emoji: '💧', name: 'SiramBunga', action: 'Siram Air' },
-            { emoji: '⚽', name: 'TendangBola', action: 'Tendang Bola' },
-            { emoji: '🔑', name: 'BukaKunci', action: 'Buka Kunci' },
-            { emoji: '🎁', name: 'AmbilKado', action: 'Ambil Kado' }
+        // Pool arah & aksi yang diperbanyak
+        const directions = [
+            { id: 'UP', emoji: '⬆️', text: 'Maju' },
+            { id: 'DOWN', emoji: '⬇️', text: 'Mundur' },
+            { id: 'LEFT', emoji: '⬅️', text: 'Kiri' },
+            { id: 'RIGHT', emoji: '➡️', text: 'Kanan' }
         ];
-        const dirs = [
-            { id: '➡️', name: 'Kanan' },
-            { id: '⬅️', name: 'Kiri' },
-            { id: '⬆️', name: 'Atas' },
-            { id: '⬇️', name: 'Bawah' }
+        const actions = [
+            { id: 'WATER', emoji: '💧', text: 'Siram Air' },
+            { id: 'SEED', emoji: '🌱', text: 'Tanam Benih' },
+            { id: 'HARVEST', emoji: '🌾', text: 'Panen' },
+            { id: 'FIRE', emoji: '🔥', text: 'Bakar' },
+            { id: 'DIG', emoji: '⛏️', text: 'Gali' },
+            { id: 'BUILD', emoji: '🧱', text: 'Bangun' },
+            { id: 'JUMP', emoji: '🦘', text: 'Lompat' }
         ];
         
-        let i1 = dirs[Math.floor(Math.random() * dirs.length)];
-        let i2 = dirs[Math.floor(Math.random() * dirs.length)];
-        let it = items[Math.floor(Math.random() * items.length)];
-
-        const t = {
-            name: it.name,
-            steps: [i1.id, i2.id, it.emoji],
-            desc: `${i1.name}, ${i2.name}, lalu ${it.action}`
-        };
-
-        this.g9Seq = [null, null, null];
+        // Random sequence length (3 to 5)
+        let seqLen = Math.floor(Math.random() * 3) + 3;
         
+        let expectedSequence = [];
+        let combinedPool = [...directions, ...actions];
+        
+        for(let i=0; i<seqLen; i++) {
+            // Bisa pilih kombinasi aksi atau arah acak
+            let r = combinedPool[Math.floor(Math.random() * combinedPool.length)];
+            expectedSequence.push(r);
+        }
+
+        this.g9Expected = expectedSequence;
+        this.g9CurrentInput = [];
+
         const renderUI = () => {
+            let funcDef = expectedSequence.map(item => `
+                <div style="background:white; border:2px solid #ccc; border-radius:10px; padding:10px; font-size:2rem;">${item.emoji}</div>
+            `).join('<span style="font-size:2rem; font-weight:bold; margin:0 5px;">+</span>');
+
+            let slots = '';
+            for(let i = 0; i < seqLen; i++) {
+                let fill = this.g9CurrentInput[i];
+                slots += `<div style="width:60px; height:60px; border:3px dashed #aaa; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; background:white;">${fill ? fill.emoji : ''}</div>`;
+            }
+
+            // Opsi tombol yang tampil adalah yang dibutuhkan + pengecoh
+            let needed = [...new Set(expectedSequence)];
+            let unneeded = combinedPool.filter(x => !needed.includes(x)).sort(() => 0.5 - Math.random()).slice(0, 3);
+            let optionsToShow = [...needed, ...unneeded].sort(() => 0.5 - Math.random());
+
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:10px;">Buat Fungsi (Resep) Baru!</div>
-                <div style="background:#fff3cd; padding:15px; border-radius:10px; border:2px dashed #ffeeba; margin-bottom:20px; font-size:1.2rem; color:#856404; text-align:center;">
-                    Kamu perlu membuat fungsi <b>${t.name}()</b>.<br>
-                    Agar berhasil, robot harus: <b>${t.desc}</b>
-                </div>
+                <div class="subtitle" style="margin-bottom:10px;">Panggil fungsi sesuai resep rahasia!</div>
                 
-                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:30px; background:#f8f9fa; padding:20px; border-radius:15px; border:2px solid #ddd; flex-wrap:wrap; align-items:center;">
-                    <div style="font-size:1.5rem; font-weight:bold; margin-right:10px; color:var(--primary);">${t.name}() = </div>
-                    ${[0,1,2].map(i => `
-                        <button onclick="app.toggleFunc9(${i})" style="font-size:2.5rem; width:70px; height:70px; border-radius:10px; border:3px dashed #ccc; cursor:pointer; background:white;">${this.g9Seq[i] || '❓'}</button>
-                    `).join('')}
+                <div style="background:#e8f4f8; border:3px solid #3498db; border-radius:15px; padding:20px; margin-bottom:20px; text-align:center;">
+                    <div style="font-size:1.2rem; font-weight:bold; color:#2980b9; margin-bottom:10px;">Definisi Fungsi: <span style="background:#3498db; color:white; padding:5px 10px; border-radius:8px;">function kerjakan()</span></div>
+                    <div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:5px;">
+                        ${funcDef}
+                    </div>
                 </div>
 
-                <div class="subtitle" style="font-size:1rem; color:#555; margin-bottom:20px;">Klik ❓ untuk memilih perintah!</div>
-                <button class="run-btn" onclick="app.checkWin9()" style="padding:15px 40px; font-size:1.5rem;">⚙️ SIMPAN FUNGSI</button>
+                <div class="subtitle" style="font-size:1.1rem; margin-bottom:10px;">Panggil fungsi dengan memasukkan blok yang tepat:</div>
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+                    ${slots}
+                </div>
+
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; background:#f8f9fa; padding:15px; border-radius:15px;">
+                    ${optionsToShow.map(opt => `
+                        <button onclick="app.g9AddInput('${opt.id}')" style="font-size:2rem; width:60px; height:60px; border-radius:10px; border:2px solid #ccc; cursor:pointer; background:white;">${opt.emoji}</button>
+                    `).join('')}
+                    <button onclick="app.g9Clear()" style="font-size:1.5rem; width:60px; height:60px; border-radius:10px; border:2px solid #e74c3c; cursor:pointer; background:#ff7675; color:white; font-weight:bold;">C</button>
+                </div>
+
+                <button class="run-btn" onclick="app.checkWin9()" style="padding:15px 40px; font-size:1.5rem;">▶️ JALANKAN FUNGSI</button>
             `;
         };
 
-        this.toggleFunc9 = (i) => {
-            const opts = [null, '➡️', '⬅️', '⬆️', '⬇️', '🍎', '🐟', '💧', '⚽', '🔑', '🎁'];
-            let idx = opts.indexOf(this.g9Seq[i]);
-            idx = (idx + 1) % opts.length;
-            this.g9Seq[i] = opts[idx];
+        this.g9AddInput = (id) => {
+            if (this.g9CurrentInput.length >= seqLen) return;
+            let item = combinedPool.find(x => x.id === id);
+            this.g9CurrentInput.push(item);
+            SFX.click();
+            renderUI();
+        };
+
+        this.g9Clear = () => {
+            this.g9CurrentInput = [];
+            SFX.click();
             renderUI();
         };
 
         this.checkWin9 = () => {
-            let win = this.g9Seq[0] === t.steps[0] && this.g9Seq[1] === t.steps[1] && this.g9Seq[2] === t.steps[2];
-            this.showFeedback(win);
+            if (this.g9CurrentInput.length !== seqLen) {
+                this.showNotif("Lengkapi semua blok fungsi dulu!");
+                return;
+            }
+
+            let isWin = true;
+            for(let i=0; i<seqLen; i++) {
+                if (this.g9CurrentInput[i].id !== this.g9Expected[i].id) {
+                    isWin = false;
+                    break;
+                }
+            }
+
+            this.showFeedback(isWin);
+            if (!isWin) {
+                this.g9CurrentInput = [];
+                renderUI();
+            }
         };
 
         renderUI();
+    },
     // ==========================================
     // GAME 10: KODING PIXEL (Binary Art)
     // ==========================================
