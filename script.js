@@ -723,87 +723,214 @@ const app = {
     // ==========================================
     // GAME 6: PENGULANGAN (Looping)
     // ==========================================
+    // ==========================================
+    // GAME 6: PENGULANGAN TINGKAT LANJUT (Looping Majemuk)
+    // ==========================================
     initGame6() {
-        const size = 6;
-        let startPos = Math.floor(Math.random() * 2); // 0 atau 1
-        let playerPos = startPos;
-        let targetPos = Math.floor(Math.random() * 2) + 4; // 4 atau 5
-        let loopCount = 1;
-        let isRunning = false;
+        this.g6Mode = Math.random() > 0.5 ? 1 : 0; // 0 = Tangga (Grid 4x4), 1 = Panen (Linear 1x5)
+        this.g6LoopCount = 1;
+        this.g6Slots = [null, null];
+        this.g6ActiveSlot = 0;
+        this.g6IsRunning = false;
+        
+        // Mode 0 variables
+        this.g6PlayerXY = { x: 0, y: 3 }; 
+        
+        // Mode 1 variables
+        this.g6PlayerLinear = 0;
+        this.g6Apples = [false, true, true, true, true]; // Apple di index 1,2,3,4
+
         const playerEmoji = getActiveSkinEmoji('player');
         const targetEmoji = getActiveSkinEmoji('target');
 
         const drawGrid = () => {
-            let html = `<div style="display:flex; justify-content:center; gap:5px; margin-bottom:20px;">`;
-            for(let i=0; i<size; i++) {
-                let icon = '';
-                if(i === playerPos) icon = playerEmoji;
-                else if(i === targetPos) icon = targetEmoji;
-                html += `<div style="width:60px; height:60px; border:2px solid #ccc; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; background:white;">${icon}</div>`;
+            if (this.g6Mode === 0) {
+                // Mode 0: Tangga 4x4
+                let html = `<div style="display:grid; grid-template-columns:repeat(4, 60px); grid-template-rows:repeat(4, 60px); gap:5px; margin:0 auto 20px; width:fit-content; background:#ccc; padding:5px; border-radius:10px;">`;
+                for (let y = 0; y < 4; y++) {
+                    for (let x = 0; x < 4; x++) {
+                        let icon = '';
+                        let bg = 'white';
+                        // Rute highlight
+                        if ((x===0 && y===3) || (x===1 && y===3) || (x===1 && y===2) || (x===2 && y===2) || (x===2 && y===1) || (x===3 && y===1) || (x===3 && y===0)) {
+                            bg = '#ffeaa7';
+                        }
+                        if (x === this.g6PlayerXY.x && y === this.g6PlayerXY.y) icon = playerEmoji;
+                        else if (x === 3 && y === 0) icon = targetEmoji;
+                        
+                        html += `<div style="width:60px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:${bg}; position:relative; z-index:${icon?2:1};">${icon}</div>`;
+                    }
+                }
+                html += `</div>`;
+                return html;
+            } else {
+                // Mode 1: Panen 1x5
+                let html = `<div style="display:grid; grid-template-columns:repeat(5, 60px); gap:5px; margin:0 auto 20px; width:fit-content; background:#ccc; padding:5px; border-radius:10px;">`;
+                for (let i = 0; i < 5; i++) {
+                    let icon = '';
+                    if (i === this.g6PlayerLinear) icon = playerEmoji;
+                    else if (i === 4 && this.g6Apples[i]) icon = targetEmoji + '<span style="position:absolute; bottom:0; right:0; font-size:1rem;">🍎</span>';
+                    else if (i === 4) icon = targetEmoji;
+                    else if (this.g6Apples[i]) icon = '🍎';
+                    
+                    html += `<div style="width:60px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:white; position:relative;">${icon}</div>`;
+                }
+                html += `</div>`;
+                return html;
             }
-            html += `</div>`;
-            return html;
         };
 
-        const renderUI = () => {
+        this.renderUI6 = () => {
+            const subtitle = this.g6Mode === 0 ? 
+                'Susun blok di dalam LOOP agar mobil melewati jalur kuning!' : 
+                'Susun blok di dalam LOOP agar mobil mengambil semua apel sampai ke rumah!';
+            
+            const btnRight = `<button class="control-btn" onclick="app.g6FillSlot('➡️')">➡️ Kanan</button>`;
+            const btnUp = `<button class="control-btn" onclick="app.g6FillSlot('⬆️')">⬆️ Atas</button>`;
+            const btnApple = `<button class="control-btn" onclick="app.g6FillSlot('🍎')">🍎 Ambil</button>`;
+            
+            const controlsHtml = this.g6Mode === 0 ? btnRight + btnUp : btnRight + btnApple;
+
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:10px;">Gunakan <b>Loop (Pengulangan)</b> agar mobil sampai rumah!</div>
-                <div id="g6-grid">${drawGrid()}</div>
-                <div style="background:#f0f0f0; padding:20px; border-radius:15px; display:flex; align-items:center; justify-content:center; gap:20px; width:fit-content; margin:0 auto 20px;">
-                    <div style="font-size:3rem; border:3px solid #3498db; padding:10px; border-radius:10px; background:white;">➡️</div>
-                    <div style="font-size:2rem; font-weight:bold;">Diulang (x)</div>
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <button onclick="app.changeLoop6(-1)" style="font-size:2rem; width:50px; height:50px; border-radius:50%; border:none; background:#e74c3c; color:white; cursor:pointer;">-</button>
-                        <div style="font-size:3rem; font-weight:bold; width:40px; text-align:center;">${loopCount}</div>
-                        <button onclick="app.changeLoop6(1)" style="font-size:2rem; width:50px; height:50px; border-radius:50%; border:none; background:#2ecc71; color:white; cursor:pointer;">+</button>
+                <div class="subtitle" style="margin-bottom:10px;">${subtitle}</div>
+                <div id="g6-grid-container">${drawGrid()}</div>
+                
+                <div class="loop-block">
+                    <div style="font-size:1.5rem; font-weight:bold; color:var(--secondary);">
+                        🔁 DIULANG <span style="font-size:2rem; background:white; padding:0 10px; border-radius:8px; border:2px solid #ccc; display:inline-block; min-width:40px; text-align:center;">${this.g6LoopCount}</span> KALI:
+                    </div>
+                    
+                    <div class="loop-slots-container">
+                        <div id="g6-slot-0" class="loop-slot ${this.g6ActiveSlot === 0 ? 'active' : ''}" onclick="app.g6SelectSlot(0)">
+                            ${this.g6Slots[0] || '?'}
+                        </div>
+                        <div id="g6-slot-1" class="loop-slot ${this.g6ActiveSlot === 1 ? 'active' : ''}" onclick="app.g6SelectSlot(1)">
+                            ${this.g6Slots[1] || '?'}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+                        Ubah jumlah Loop: 
+                        <button class="control-btn" style="padding:10px 15px; font-size:1.5rem; border-radius:50%;" onclick="app.g6ChangeLoop(-1)">-</button>
+                        <button class="control-btn" style="padding:10px 15px; font-size:1.5rem; border-radius:50%;" onclick="app.g6ChangeLoop(1)">+</button>
                     </div>
                 </div>
-                <button class="run-btn" onclick="app.runLoop6()" style="padding:15px 40px; font-size:1.5rem;">▶️ JALANKAN LOOP</button>
+
+                <div class="controls" style="justify-content:center;">
+                    ${controlsHtml}
+                </div>
+                <button class="run-btn" onclick="app.g6Run()" style="padding:15px 40px; font-size:1.5rem; margin-top:10px;">▶️ JALANKAN</button>
             `;
         };
 
-        this.changeLoop6 = (delta) => {
-            if(isRunning) return;
-            loopCount += delta;
-            if(loopCount < 1) loopCount = 1;
-            if(loopCount > 5) loopCount = 5;
-            renderUI();
+        this.g6SelectSlot = (idx) => {
+            if (this.g6IsRunning) return;
+            this.g6ActiveSlot = idx;
+            SFX.click();
+            this.renderUI6();
         };
 
-        this.runLoop6 = () => {
-            if(isRunning) return;
-            isRunning = true;
-            playerPos = startPos;
-            let currentStep = 0;
+        this.g6FillSlot = (cmd) => {
+            if (this.g6IsRunning) return;
+            this.g6Slots[this.g6ActiveSlot] = cmd;
+            // Auto move to next slot if empty
+            if (this.g6ActiveSlot === 0 && !this.g6Slots[1]) this.g6ActiveSlot = 1;
+            SFX.click();
+            this.renderUI6();
+        };
 
+        this.g6ChangeLoop = (delta) => {
+            if (this.g6IsRunning) return;
+            this.g6LoopCount += delta;
+            if (this.g6LoopCount < 1) this.g6LoopCount = 1;
+            if (this.g6LoopCount > 6) this.g6LoopCount = 6;
+            SFX.click();
+            this.renderUI6();
+        };
+
+        this.g6Run = () => {
+            if (this.g6IsRunning) return;
+            if (!this.g6Slots[0] || !this.g6Slots[1]) {
+                this.showNotif("Isi kedua slot loop terlebih dahulu!");
+                return;
+            }
+            this.g6IsRunning = true;
+            
+            // Reset position
+            this.g6PlayerXY = { x: 0, y: 3 };
+            this.g6PlayerLinear = 0;
+            this.g6Apples = [false, true, true, true, true];
+
+            let commands = [];
+            for(let i=0; i<this.g6LoopCount; i++) {
+                commands.push(this.g6Slots[0]);
+                commands.push(this.g6Slots[1]);
+            }
+
+            let cmdIdx = 0;
             const step = () => {
-                if(currentStep >= loopCount) {
-                    isRunning = false;
-                    let isWin = playerPos === targetPos;
-                    this.showFeedback(isWin);
-                    if (!isWin) {
-                        setTimeout(() => { playerPos = startPos; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
-                    }
-                    return;
-                }
-                playerPos++;
-                
-                if (playerPos >= size) {
-                    isRunning = false;
-                    this.showFeedback(false); // nabrak ujung
-                    setTimeout(() => { playerPos = startPos; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
+                if (cmdIdx >= commands.length) {
+                    this.g6IsRunning = false;
+                    this.g6CheckWin();
                     return;
                 }
 
-                document.getElementById('g6-grid').innerHTML = drawGrid();
-                currentStep++;
-                setTimeout(step, 600);
+                let cmd = commands[cmdIdx];
+                if (this.g6Mode === 0) { // Tangga
+                    if (cmd === '➡️') this.g6PlayerXY.x++;
+                    else if (cmd === '⬆️') this.g6PlayerXY.y--;
+                } else { // Panen
+                    if (cmd === '➡️') this.g6PlayerLinear++;
+                    else if (cmd === '🍎' && this.g6Apples[this.g6PlayerLinear]) {
+                        this.g6Apples[this.g6PlayerLinear] = false;
+                        SFX.buy(); // Sound ambil apel
+                    }
+                }
+
+                SFX.step();
+                document.getElementById('g6-grid-container').innerHTML = drawGrid();
+                
+                // Out of bounds check
+                if (this.g6Mode === 0 && (this.g6PlayerXY.x > 3 || this.g6PlayerXY.x < 0 || this.g6PlayerXY.y > 3 || this.g6PlayerXY.y < 0)) {
+                    this.g6IsRunning = false;
+                    this.showFeedback(false);
+                    setTimeout(() => { this.g6PlayerXY = {x:0, y:3}; this.renderUI6(); }, 1500);
+                    return;
+                }
+                if (this.g6Mode === 1 && this.g6PlayerLinear > 4) {
+                    this.g6IsRunning = false;
+                    this.showFeedback(false);
+                    setTimeout(() => { this.g6PlayerLinear = 0; this.g6Apples = [false,true,true,true,true]; this.renderUI6(); }, 1500);
+                    return;
+                }
+
+                cmdIdx++;
+                setTimeout(step, 500);
             };
             
             step();
         };
 
-        renderUI();
+        this.g6CheckWin = () => {
+            let isWin = false;
+            if (this.g6Mode === 0) {
+                isWin = (this.g6PlayerXY.x === 3 && this.g6PlayerXY.y === 0);
+            } else {
+                let allApplesTaken = !this.g6Apples.includes(true);
+                isWin = (this.g6PlayerLinear === 4 && allApplesTaken);
+            }
+            this.showFeedback(isWin);
+            if (!isWin) {
+                setTimeout(() => { 
+                    this.g6PlayerXY = {x:0, y:3}; 
+                    this.g6PlayerLinear = 0; 
+                    this.g6Apples = [false,true,true,true,true]; 
+                    this.renderUI6(); 
+                }, 2000);
+            }
+        };
+
+        this.renderUI6();
     },
 
     // ==========================================
