@@ -71,6 +71,23 @@
                     <span class="text">12. Mesin Sortir</span>
                 </button>
             </div>
+            
+            <h2 style="text-align:center; margin: 20px 0 10px 0; color:var(--accent2);">⚔️ Mode Multiplayer (2 Pemain)</h2>
+            <div class="menu-container" style="margin-bottom: 20px;">
+                <button class="menu-btn game1" onclick="app.startMultiplayer(1)">
+                    <span class="emoji">🏎️</span>
+                    <span class="text">1. Balapan Koding</span>
+                </button>
+                <button class="menu-btn game2" onclick="app.startMultiplayer(2)">
+                    <span class="emoji">🤖</span>
+                    <span class="text">2. Tarik Tambang Logika</span>
+                </button>
+                <button class="menu-btn game8" onclick="app.startMultiplayer(3)">
+                    <span class="emoji">🐛</span>
+                    <span class="text">3. Duel Tangkap Kutu</span>
+                </button>
+            </div>
+
             <!-- Menu Footer: Toko, Loker, Misi -->
             <div class="menu-footer">
                 <button class="menu-footer-btn shop-btn" onclick="app.showShop()">
@@ -83,6 +100,36 @@
                     <span>📅</span> Misi
                 </button>
                 <div class="menu-score-display">⭐ <span id="menu-score">0</span></div>
+            </div>
+        </div>
+
+        <!-- Multiplayer Split-Screen -->
+        <div id="multiplayer-screen" class="screen" style="padding:0; overflow:hidden;">
+            <button onclick="app.showMainMenu()" style="position:absolute; top:50%; left:10px; transform:translateY(-50%); z-index:999; background:var(--white); border:2px solid var(--primary); border-radius:50%; width:50px; height:50px; font-size:1.5rem; cursor:pointer; box-shadow:var(--shadow);">🚪</button>
+            
+            <!-- Layar Atas (Pemain 2 - Terbalik) -->
+            <div id="mp-top" style="flex:1; transform:rotate(180deg); background:#ffeaa7; position:relative; overflow:hidden; border-bottom:4px solid var(--text-color);">
+                <div style="padding:15px; text-align:center;">
+                    <h3 style="color:var(--text-color); margin-bottom:5px;">Pemain 2 (Atas)</h3>
+                    <div id="mp-top-content" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;"></div>
+                </div>
+            </div>
+
+            <!-- Layar Bawah (Pemain 1 - Normal) -->
+            <div id="mp-bottom" style="flex:1; background:#81ecec; position:relative; overflow:hidden;">
+                <div style="padding:15px; text-align:center;">
+                    <h3 style="color:var(--text-color); margin-bottom:5px;">Pemain 1 (Bawah)</h3>
+                    <div id="mp-bottom-content" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center;"></div>
+                </div>
+            </div>
+            
+            <!-- Multiplayer Winner Feedback -->
+            <div id="mp-feedback" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <h1 id="mp-winner-text" style="color:white; font-size:4rem; text-shadow:0 5px 15px rgba(0,0,0,0.5); animation: zoomIn 0.5s ease;">🎉 PEMAIN 1 MENANG! 🎉</h1>
+                <div style="display:flex; gap:20px; margin-top:30px;">
+                    <button onclick="app.loadMultiplayer()" style="padding:15px 30px; font-size:1.5rem; border:none; border-radius:20px; background:var(--secondary); color:white; cursor:pointer; font-weight:bold;">Main Lagi 🔁</button>
+                    <button onclick="app.showMainMenu()" style="padding:15px 30px; font-size:1.5rem; border:none; border-radius:20px; background:var(--primary); color:white; cursor:pointer; font-weight:bold;">Keluar 🚪</button>
+                </div>
             </div>
         </div>
 

@@ -271,6 +271,11 @@ const app = {
         shopScreen: document.getElementById('shop-screen'),
         lockerScreen: document.getElementById('locker-screen'),
         dailyScreen: document.getElementById('daily-screen'),
+        multiplayerScreen: document.getElementById('multiplayer-screen'),
+        mpTopContent: document.getElementById('mp-top-content'),
+        mpBottomContent: document.getElementById('mp-bottom-content'),
+        mpFeedback: document.getElementById('mp-feedback'),
+        mpWinnerText: document.getElementById('mp-winner-text'),
         gameTitle: document.getElementById('game-title'),
         gameContent: document.getElementById('game-content'),
         shopContent: document.getElementById('shop-content'),
@@ -347,6 +352,7 @@ const app = {
         this.el.shopScreen.classList.remove('active');
         this.el.lockerScreen.classList.remove('active');
         this.el.dailyScreen.classList.remove('active');
+        if (this.el.multiplayerScreen) this.el.multiplayerScreen.classList.remove('active');
     },
 
     startGame(gameId) {
@@ -389,6 +395,35 @@ const app = {
     showNotif(msg) {
         this.el.notifMessage.innerText = msg;
         this.el.notifOverlay.classList.remove('hidden');
+    },
+
+    startMultiplayer(gameId) {
+        this.currentMpGame = gameId;
+        this.hideAllScreens();
+        this.el.multiplayerScreen.classList.add('active');
+        this.loadMultiplayer();
+    },
+
+    loadMultiplayer() {
+        this.el.mpFeedback.classList.add('hidden');
+        this.el.mpTopContent.innerHTML = '';
+        this.el.mpBottomContent.innerHTML = '';
+        
+        if (this.currentMpGame === 1) {
+            this.initMpRace();
+        } else if (this.currentMpGame === 2) {
+            this.initMpTugOfWar();
+        } else if (this.currentMpGame === 3) {
+            this.initMpBugSmasher();
+        }
+    },
+
+    mpWin(player) {
+        SFX.reward();
+        this.el.mpWinnerText.innerText = `🎉 PEMAIN ${player} MENANG! 🎉`;
+        this.el.mpWinnerText.style.color = player === 1 ? '#81ecec' : '#ffeaa7';
+        this.el.mpFeedback.classList.remove('hidden');
+        confetti({ particleCount: 300, spread: 150, origin: { y: 0.5 } });
     },
 
     loadGame() {
@@ -2113,6 +2148,182 @@ const app = {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         this.showNotif(`🎁 +${reward} ⭐ didapatkan!${bonusMsg}\n🔥 Streak: ${data.dailyStreak} hari`);
         this.renderDaily(); // Re-render untuk tampilkan "selesai"
+    },
+
+    // ==========================================
+    // MULTIPLAYER LOGIC
+    // ==========================================
+    initMpRace() {
+        const p1Emoji = getActiveSkinEmoji('player');
+        const p2Emoji = getActiveSkinEmoji('player');
+        const target = getActiveSkinEmoji('target');
+        
+        const renderPlayerUI = (playerId) => `
+            <div style="font-size:2rem; margin-bottom:10px; text-align:left; width:80%;">
+                <span id="p${playerId}-car" style="display:inline-block; transition:0.2s;">${playerId===1 ? p1Emoji : p2Emoji}</span> 
+                <span style="float:right;">${target}</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="app.mpRaceStep(${playerId})" style="padding:15px 30px; font-size:1.5rem; border-radius:15px; background:var(--primary); color:white; border:none; box-shadow:0 4px 0 #c0392b;">MAJU ➡️</button>
+            </div>
+        `;
+        
+        this.el.mpTopContent.innerHTML = renderPlayerUI(2);
+        this.el.mpBottomContent.innerHTML = renderPlayerUI(1);
+        
+        this.mpRaceProgress = { 1: 0, 2: 0 };
+    },
+
+    mpRaceStep(player) {
+        if (this.mpRaceProgress[player] >= 8) return;
+        this.mpRaceProgress[player]++;
+        SFX.step();
+        
+        const car = document.getElementById(`p${player}-car`);
+        car.style.transform = `translateX(${this.mpRaceProgress[player] * 25}px)`;
+        
+        if (this.mpRaceProgress[player] >= 8) {
+            this.mpWin(player);
+        }
+    },
+
+    initMpTugOfWar() {
+        this.mpTugPos = 0;
+        const renderUI = (playerId) => `
+            <div id="mp-question-${playerId}" style="font-size:2rem; font-weight:bold; margin-bottom:15px; color:var(--text-color);">3 + 4 = ?</div>
+            <div style="display:flex; gap:15px; justify-content:center;">
+                <button onclick="app.mpTugAnswer(${playerId}, true)" style="padding:15px 30px; font-size:1.5rem; background:#2ecc71; color:white; border:none; border-radius:10px;">7</button>
+                <button onclick="app.mpTugAnswer(${playerId}, false)" style="padding:15px 30px; font-size:1.5rem; background:#e74c3c; color:white; border:none; border-radius:10px;">8</button>
+            </div>
+        `;
+        
+        this.el.mpTopContent.innerHTML = renderUI(2);
+        this.el.mpBottomContent.innerHTML = renderUI(1);
+        
+        if (!document.getElementById('mp-tug-robot')) {
+            const robot = document.createElement('div');
+            robot.id = 'mp-tug-robot';
+            robot.innerHTML = '🤖';
+            robot.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:4rem; z-index:10; transition:0.3s;';
+            this.el.multiplayerScreen.appendChild(robot);
+        } else {
+            const robot = document.getElementById('mp-tug-robot');
+            robot.style.transform = `translate(-50%, -50%) translateY(0px)`;
+            robot.style.display = 'block';
+        }
+        
+        this.mpGenerateTugQuestion();
+    },
+
+    mpGenerateTugQuestion() {
+        const a = Math.floor(Math.random() * 5) + 1;
+        const b = Math.floor(Math.random() * 5) + 1;
+        const ans = a + b;
+        const fakeAns = ans + (Math.random() > 0.5 ? 1 : -1);
+        
+        const qText = `${a} + ${b} = ?`;
+        document.getElementById('mp-question-1').innerText = qText;
+        document.getElementById('mp-question-2').innerText = qText;
+        
+        const p1Btns = this.el.mpBottomContent.querySelectorAll('button');
+        const p2Btns = this.el.mpTopContent.querySelectorAll('button');
+        
+        const isLeft = Math.random() > 0.5;
+        p1Btns[0].innerText = isLeft ? ans : fakeAns;
+        p1Btns[1].innerText = isLeft ? fakeAns : ans;
+        p1Btns[0].setAttribute('onclick', `app.mpTugAnswer(1, ${isLeft})`);
+        p1Btns[1].setAttribute('onclick', `app.mpTugAnswer(1, ${!isLeft})`);
+        
+        const isLeftP2 = Math.random() > 0.5;
+        p2Btns[0].innerText = isLeftP2 ? ans : fakeAns;
+        p2Btns[1].innerText = isLeftP2 ? fakeAns : ans;
+        p2Btns[0].setAttribute('onclick', `app.mpTugAnswer(2, ${isLeftP2})`);
+        p2Btns[1].setAttribute('onclick', `app.mpTugAnswer(2, ${!isLeftP2})`);
+    },
+
+    mpTugAnswer(player, isCorrect) {
+        if (isCorrect) {
+            SFX.correct();
+            this.mpTugPos += (player === 1 ? 1 : -1);
+        } else {
+            SFX.wrong();
+            this.mpTugPos += (player === 1 ? -1 : 1);
+        }
+        
+        const robot = document.getElementById('mp-tug-robot');
+        // Player 1 pulls down (+Y), Player 2 pulls up (-Y)
+        robot.style.transform = `translate(-50%, -50%) translateY(${this.mpTugPos * 30}px)`;
+        
+        if (this.mpTugPos >= 5) {
+            robot.style.display = 'none';
+            this.mpWin(1);
+        } else if (this.mpTugPos <= -5) {
+            robot.style.display = 'none';
+            this.mpWin(2);
+        } else {
+            this.mpGenerateTugQuestion();
+        }
+    },
+
+    initMpBugSmasher() {
+        this.mpBugScores = { 1: 0, 2: 0 };
+        const renderUI = (playerId) => `
+            <div style="font-size:1.5rem; font-weight:bold; margin-bottom:10px;">SKOR KUTU: <span id="mp-bug-score-${playerId}">0</span>/10</div>
+            <div id="mp-bug-arena-${playerId}" style="position:relative; width:90%; height:200px; background:rgba(255,255,255,0.5); border-radius:10px; overflow:hidden; border:2px dashed #ccc;"></div>
+            <p style="margin-top:10px; font-size:0.9rem;">Tap 🐛 (Poin +1). Jangan Tap 🐞 (Poin -1)!</p>
+        `;
+        
+        this.el.mpTopContent.innerHTML = renderUI(2);
+        this.el.mpBottomContent.innerHTML = renderUI(1);
+        
+        if (document.getElementById('mp-tug-robot')) {
+            document.getElementById('mp-tug-robot').style.display = 'none';
+        }
+
+        this.mpBugInterval = setInterval(() => {
+            if (this.el.multiplayerScreen.classList.contains('active') && this.currentMpGame === 3) {
+                this.mpSpawnBug(1);
+                this.mpSpawnBug(2);
+            } else {
+                clearInterval(this.mpBugInterval);
+            }
+        }, 700);
+    },
+
+    mpSpawnBug(player) {
+        const arena = document.getElementById(`mp-bug-arena-${player}`);
+        if (!arena) return;
+        
+        const bug = document.createElement('div');
+        const isGood = Math.random() > 0.3; // 70% 🐛, 30% 🐞
+        bug.innerHTML = isGood ? '🐛' : '🐞';
+        bug.style.cssText = `
+            position:absolute; 
+            font-size:2.5rem; 
+            left:${Math.random() * 80}%; 
+            top:${Math.random() * 70}%; 
+            cursor:pointer;
+            user-select:none;
+        `;
+        
+        bug.onclick = () => {
+            SFX.click();
+            if (isGood) {
+                this.mpBugScores[player]++;
+            } else {
+                this.mpBugScores[player]--;
+            }
+            document.getElementById(`mp-bug-score-${player}`).innerText = this.mpBugScores[player];
+            bug.remove();
+            
+            if (this.mpBugScores[player] >= 10) {
+                clearInterval(this.mpBugInterval);
+                this.mpWin(player);
+            }
+        };
+        
+        arena.appendChild(bug);
+        setTimeout(() => { if (bug.parentNode) bug.remove(); }, 1200);
     }
 };
 

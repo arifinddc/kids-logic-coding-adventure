@@ -10,7 +10,9 @@ Berikut adalah daftar fitur dan pengembangan masa depan untuk proyek ini:
 
 ## 🚀 Fitur Aktif / Dalam Pembahasan
 - [ ] Mode "Challenge" (Waktu Terbatas)
+
 ## ✅ Selesai
+- [x] Mode Multiplayer Split-Screen 2 Pemain (Balapan, Tarik Tambang, Bug Smasher).
 - [x] Perombakan RNG dan Variasi (Procedural Generation) untuk 12 Mini Games.
 - [x] Service Worker `stale-while-revalidate` (Absolute Offline PWA).
 - [x] Skrip auto-update dokumentasi `sync-docs.js`.
