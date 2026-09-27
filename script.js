@@ -681,16 +681,24 @@ const app = {
     // GAME 5: KODING POLA WARNA (Color Painting Logic)
     // ==========================================
     initGame5() {
-        const shapesMap = [
-            { id: 'tri', empty: '△', filled: '▲', color: '#e74c3c' },
-            { id: 'sqr', empty: '□', filled: '■', color: '#3498db' },
-            { id: 'cir', empty: '○', filled: '●', color: '#2ecc71' },
-            { id: 'str', empty: '☆', filled: '★', color: '#f1c40f' }
+        const allShapes = [
+            { empty: '△', filled: '▲' }, { empty: '□', filled: '■' },
+            { empty: '○', filled: '●' }, { empty: '☆', filled: '★' },
+            { empty: '♡', filled: '♥' }, { empty: '◇', filled: '◆' },
+            { empty: '♧', filled: '♣' }, { empty: '♤', filled: '♠' }
         ];
+        const allColors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6', '#e67e22', '#1abc9c', '#34495e', '#fd79a8', '#00cec9'];
+        
+        let shuffShapes = [...allShapes].sort(() => 0.5 - Math.random()).slice(0, 4);
+        let shuffColors = [...allColors].sort(() => 0.5 - Math.random()).slice(0, 4);
+        
+        const shapesMap = shuffShapes.map((s, i) => ({
+            empty: s.empty, filled: s.filled, color: shuffColors[i]
+        }));
 
         this.g5Brush = null;
         
-        // Generate 8 random grid items
+        // Generate 8 random grid items (Pattern variation is 4^8)
         this.g5Grid = [];
         for(let i=0; i<8; i++) {
             let s = shapesMap[Math.floor(Math.random() * shapesMap.length)];
@@ -749,12 +757,14 @@ const app = {
 
         this.setBrush5 = (color) => {
             this.g5Brush = color;
+            SFX.click();
             this.drawUI5();
         };
 
         this.paintShape5 = (idx) => {
             if(!this.g5Brush) return;
             this.g5Grid[idx].currentColor = this.g5Brush;
+            SFX.step();
             document.getElementById('g5-grid-container').innerHTML = this.renderGrid5();
         };
 
@@ -779,18 +789,29 @@ const app = {
     // GAME 6: PENGULANGAN TINGKAT LANJUT (Looping Majemuk)
     // ==========================================
     initGame6() {
-        this.g6Mode = Math.random() > 0.5 ? 1 : 0; // 0 = Tangga (Grid 4x4), 1 = Panen (Linear 1x5)
+        this.g6Mode = Math.random() > 0.5 ? 1 : 0; // 0 = Tangga (Grid 4x4), 1 = Panen (Linear variable length)
         this.g6LoopCount = 1;
         this.g6Slots = [null, null];
         this.g6ActiveSlot = 0;
         this.g6IsRunning = false;
         
-        // Mode 0 variables
-        this.g6PlayerXY = { x: 0, y: 3 }; 
+        // Mode 0 variables (Procedural generation of the repeating path)
+        const mode0Vars = [
+            { start: {x:0, y:3}, target: {x:3, y:0}, seq: ['➡️', '⬆️'], hl: [{x:0,y:3},{x:1,y:3},{x:1,y:2},{x:2,y:2},{x:2,y:1},{x:3,y:1},{x:3,y:0}] },
+            { start: {x:0, y:3}, target: {x:3, y:0}, seq: ['⬆️', '➡️'], hl: [{x:0,y:3},{x:0,y:2},{x:1,y:2},{x:1,y:1},{x:2,y:1},{x:2,y:0},{x:3,y:0}] },
+            { start: {x:0, y:0}, target: {x:3, y:3}, seq: ['➡️', '⬇️'], hl: [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:2,y:1},{x:2,y:2},{x:3,y:2},{x:3,y:3}] },
+            { start: {x:0, y:0}, target: {x:3, y:3}, seq: ['⬇️', '➡️'], hl: [{x:0,y:0},{x:0,y:1},{x:1,y:1},{x:1,y:2},{x:2,y:2},{x:2,y:3},{x:3,y:3}] },
+            { start: {x:3, y:3}, target: {x:0, y:0}, seq: ['⬅️', '⬆️'], hl: [{x:3,y:3},{x:2,y:3},{x:2,y:2},{x:1,y:2},{x:1,y:1},{x:0,y:1},{x:0,y:0}] },
+            { start: {x:3, y:0}, target: {x:0, y:3}, seq: ['⬅️', '⬇️'], hl: [{x:3,y:0},{x:2,y:0},{x:2,y:1},{x:1,y:1},{x:1,y:2},{x:0,y:2},{x:0,y:3}] },
+        ];
+        this.g6Route = mode0Vars[Math.floor(Math.random() * mode0Vars.length)];
+        this.g6PlayerXY = { ...this.g6Route.start };
         
-        // Mode 1 variables
+        // Mode 1 variables (Dynamic Length)
+        this.g6PanenLen = Math.floor(Math.random() * 3) + 3; // 3 to 5 steps (so 4 to 6 boxes)
         this.g6PlayerLinear = 0;
-        this.g6Apples = [false, true, true, true, true]; // Apple di index 1,2,3,4
+        this.g6Apples = new Array(this.g6PanenLen + 1).fill(true);
+        this.g6Apples[0] = false; // Player start pos
 
         const playerEmoji = getActiveSkinEmoji('player');
         const targetEmoji = getActiveSkinEmoji('target');
@@ -804,11 +825,11 @@ const app = {
                         let icon = '';
                         let bg = 'white';
                         // Rute highlight
-                        if ((x===0 && y===3) || (x===1 && y===3) || (x===1 && y===2) || (x===2 && y===2) || (x===2 && y===1) || (x===3 && y===1) || (x===3 && y===0)) {
+                        if (this.g6Route.hl.find(p => p.x === x && p.y === y)) {
                             bg = '#ffeaa7';
                         }
                         if (x === this.g6PlayerXY.x && y === this.g6PlayerXY.y) icon = playerEmoji;
-                        else if (x === 3 && y === 0) icon = targetEmoji;
+                        else if (x === this.g6Route.target.x && y === this.g6Route.target.y) icon = targetEmoji;
                         
                         html += `<div style="width:60px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:${bg}; position:relative; z-index:${icon?2:1};">${icon}</div>`;
                     }
@@ -816,16 +837,16 @@ const app = {
                 html += `</div>`;
                 return html;
             } else {
-                // Mode 1: Panen 1x5
-                let html = `<div style="display:grid; grid-template-columns:repeat(5, 60px); gap:5px; margin:0 auto 20px; width:fit-content; background:#ccc; padding:5px; border-radius:10px;">`;
-                for (let i = 0; i < 5; i++) {
+                // Mode 1: Panen 1x(PanenLen)
+                let html = `<div style="display:grid; grid-template-columns:repeat(${this.g6PanenLen + 1}, 60px); gap:5px; margin:0 auto 20px; width:fit-content; background:#ccc; padding:5px; border-radius:10px; max-width:100%; overflow-x:auto;">`;
+                for (let i = 0; i <= this.g6PanenLen; i++) {
                     let icon = '';
                     if (i === this.g6PlayerLinear) icon = playerEmoji;
-                    else if (i === 4 && this.g6Apples[i]) icon = targetEmoji + '<span style="position:absolute; bottom:0; right:0; font-size:1rem;">🍎</span>';
-                    else if (i === 4) icon = targetEmoji;
+                    else if (i === this.g6PanenLen && this.g6Apples[i]) icon = targetEmoji + '<span style="position:absolute; bottom:0; right:0; font-size:1rem;">🍎</span>';
+                    else if (i === this.g6PanenLen) icon = targetEmoji;
                     else if (this.g6Apples[i]) icon = '🍎';
                     
-                    html += `<div style="width:60px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:white; position:relative;">${icon}</div>`;
+                    html += `<div style="width:60px; height:60px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:white; position:relative; min-width:60px;">${icon}</div>`;
                 }
                 html += `</div>`;
                 return html;
@@ -838,10 +859,19 @@ const app = {
                 'Susun blok di dalam LOOP agar mobil mengambil semua apel sampai ke rumah!';
             
             const btnRight = `<button class="control-btn" onclick="app.g6FillSlot('➡️')">➡️ Kanan</button>`;
+            const btnLeft = `<button class="control-btn" onclick="app.g6FillSlot('⬅️')">⬅️ Kiri</button>`;
             const btnUp = `<button class="control-btn" onclick="app.g6FillSlot('⬆️')">⬆️ Atas</button>`;
+            const btnDown = `<button class="control-btn" onclick="app.g6FillSlot('⬇️')">⬇️ Bawah</button>`;
             const btnApple = `<button class="control-btn" onclick="app.g6FillSlot('🍎')">🍎 Ambil</button>`;
             
-            const controlsHtml = this.g6Mode === 0 ? btnRight + btnUp : btnRight + btnApple;
+            let controlsHtml = '';
+            if (this.g6Mode === 0) {
+                // Show only the needed controls to not overwhelm, but mix them
+                if(this.g6Route.seq.includes('➡️') || this.g6Route.seq.includes('⬅️')) controlsHtml += btnRight + btnLeft;
+                if(this.g6Route.seq.includes('⬆️') || this.g6Route.seq.includes('⬇️')) controlsHtml += btnUp + btnDown;
+            } else {
+                controlsHtml = btnRight + btnApple;
+            }
 
             this.el.gameContent.innerHTML = `
                 <div class="subtitle" style="margin-bottom:10px;">${subtitle}</div>
@@ -909,9 +939,10 @@ const app = {
             this.g6IsRunning = true;
             
             // Reset position
-            this.g6PlayerXY = { x: 0, y: 3 };
+            this.g6PlayerXY = { ...this.g6Route.start };
             this.g6PlayerLinear = 0;
-            this.g6Apples = [false, true, true, true, true];
+            this.g6Apples = new Array(this.g6PanenLen + 1).fill(true);
+            this.g6Apples[0] = false;
 
             let commands = [];
             for(let i=0; i<this.g6LoopCount; i++) {
@@ -930,7 +961,9 @@ const app = {
                 let cmd = commands[cmdIdx];
                 if (this.g6Mode === 0) { // Tangga
                     if (cmd === '➡️') this.g6PlayerXY.x++;
+                    else if (cmd === '⬅️') this.g6PlayerXY.x--;
                     else if (cmd === '⬆️') this.g6PlayerXY.y--;
+                    else if (cmd === '⬇️') this.g6PlayerXY.y++;
                 } else { // Panen
                     if (cmd === '➡️') this.g6PlayerLinear++;
                     else if (cmd === '🍎' && this.g6Apples[this.g6PlayerLinear]) {
@@ -946,13 +979,18 @@ const app = {
                 if (this.g6Mode === 0 && (this.g6PlayerXY.x > 3 || this.g6PlayerXY.x < 0 || this.g6PlayerXY.y > 3 || this.g6PlayerXY.y < 0)) {
                     this.g6IsRunning = false;
                     this.showFeedback(false);
-                    setTimeout(() => { this.g6PlayerXY = {x:0, y:3}; this.renderUI6(); }, 1500);
+                    setTimeout(() => { this.g6PlayerXY = { ...this.g6Route.start }; this.renderUI6(); }, 1500);
                     return;
                 }
-                if (this.g6Mode === 1 && this.g6PlayerLinear > 4) {
+                if (this.g6Mode === 1 && this.g6PlayerLinear > this.g6PanenLen) {
                     this.g6IsRunning = false;
                     this.showFeedback(false);
-                    setTimeout(() => { this.g6PlayerLinear = 0; this.g6Apples = [false,true,true,true,true]; this.renderUI6(); }, 1500);
+                    setTimeout(() => { 
+                        this.g6PlayerLinear = 0; 
+                        this.g6Apples = new Array(this.g6PanenLen + 1).fill(true); 
+                        this.g6Apples[0] = false; 
+                        this.renderUI6(); 
+                    }, 1500);
                     return;
                 }
 
@@ -966,17 +1004,18 @@ const app = {
         this.g6CheckWin = () => {
             let isWin = false;
             if (this.g6Mode === 0) {
-                isWin = (this.g6PlayerXY.x === 3 && this.g6PlayerXY.y === 0);
+                isWin = (this.g6PlayerXY.x === this.g6Route.target.x && this.g6PlayerXY.y === this.g6Route.target.y);
             } else {
                 let allApplesTaken = !this.g6Apples.includes(true);
-                isWin = (this.g6PlayerLinear === 4 && allApplesTaken);
+                isWin = (this.g6PlayerLinear === this.g6PanenLen && allApplesTaken);
             }
             this.showFeedback(isWin);
             if (!isWin) {
                 setTimeout(() => { 
-                    this.g6PlayerXY = {x:0, y:3}; 
+                    this.g6PlayerXY = { ...this.g6Route.start }; 
                     this.g6PlayerLinear = 0; 
-                    this.g6Apples = [false,true,true,true,true]; 
+                    this.g6Apples = new Array(this.g6PanenLen + 1).fill(true);
+                    this.g6Apples[0] = false;
                     this.renderUI6(); 
                 }, 2000);
             }
@@ -986,15 +1025,22 @@ const app = {
     },
 
     // ==========================================
-    // GAME 7: KONDISI CUACA (If-Else)
+    // GAME 7: KONDISI (If-Else Logika Sehari-hari)
     // ==========================================
     initGame7() {
         const rulePool = [
             { wId: 'hujan', wEmoji: '🌧️', wName: 'Hujan', gEmoji: '☂️' },
-            { wId: 'cerah', wEmoji: '☀️', wName: 'Cerah', gEmoji: '🕶️' },
+            { wId: 'cerah', wEmoji: '☀️', wName: 'Panas', gEmoji: '🕶️' },
             { wId: 'salju', wEmoji: '❄️', wName: 'Salju', gEmoji: '🧥' },
             { wId: 'malam', wEmoji: '🌙', wName: 'Malam', gEmoji: '🔦' },
-            { wId: 'badai', wEmoji: '🌪️', wName: 'Badai', gEmoji: '🪖' }
+            { wId: 'badai', wEmoji: '🌪️', wName: 'Badai', gEmoji: '🪖' },
+            { wId: 'kebakaran', wEmoji: '🔥', wName: 'Api', gEmoji: '🧯' },
+            { wId: 'kotor', wEmoji: '💩', wName: 'Kotor', gEmoji: '🧹' },
+            { wId: 'luka', wEmoji: '🤕', wName: 'Luka', gEmoji: '🩹' },
+            { wId: 'alien', wEmoji: '🛸', wName: 'UFO', gEmoji: '🔫' },
+            { wId: 'gembok', wEmoji: '🔒', wName: 'Terkunci', gEmoji: '🔑' },
+            { wId: 'haus', wEmoji: '🥵', wName: 'Haus', gEmoji: '💧' },
+            { wId: 'lapar', wEmoji: '🤤', wName: 'Lapar', gEmoji: '🍔' }
         ];
 
         let shuffledRules = [...rulePool].sort(() => 0.5 - Math.random());
@@ -1005,6 +1051,12 @@ const app = {
         this.g7Rules[r1.wId] = null;
         this.g7Rules[r2.wId] = null;
         
+        // Buat opsi jawaban yang digabung dari jawaban benar + jawaban acak
+        let allOptions = ['☂️', '🕶️', '🧥', '🔦', '🪖', '🧯', '🧹', '🩹', '🔫', '🔑', '💧', '🍔'];
+        let possibleOptions = [null, r1.gEmoji, r2.gEmoji];
+        let fillers = allOptions.filter(x => x !== r1.gEmoji && x !== r2.gEmoji).sort(() => 0.5 - Math.random()).slice(0, 3);
+        possibleOptions = [...possibleOptions, ...fillers];
+
         const renderUI = () => {
             const getGear = (wId) => {
                 return this.g7Rules[wId] || '❓';
@@ -1014,8 +1066,8 @@ const app = {
                 <div class="subtitle" style="margin-bottom:10px;">Siapkan perlengkapan sesuai kondisi (IF-ELSE)!</div>
                 <div style="background:#e8f4f8; padding:15px; border-radius:10px; border:2px dashed #b8daff; margin-bottom:20px; font-size:1.2rem; color:#004085; text-align:center;">
                     <b>ATURAN HARI INI:</b><br>
-                    JIKA cuaca <b>${r1.wName} ${r1.wEmoji}</b> pakai <b>${r1.gEmoji}</b>.<br>
-                    JIKA cuaca <b>${r2.wName} ${r2.wEmoji}</b> pakai <b>${r2.gEmoji}</b>.
+                    JIKA kondisi <b>${r1.wName} ${r1.wEmoji}</b> gunakan <b>${r1.gEmoji}</b>.<br>
+                    JIKA kondisi <b>${r2.wName} ${r2.wEmoji}</b> gunakan <b>${r2.gEmoji}</b>.
                 </div>
                 
                 <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-bottom:30px;">
@@ -1041,10 +1093,10 @@ const app = {
         };
 
         this.toggleRule7 = (wId) => {
-            const options = [null, '☂️', '🕶️', '🧥', '🔦', '🪖'];
-            let idx = options.indexOf(this.g7Rules[wId]);
-            idx = (idx + 1) % options.length;
-            this.g7Rules[wId] = options[idx];
+            let idx = possibleOptions.indexOf(this.g7Rules[wId]);
+            idx = (idx + 1) % possibleOptions.length;
+            this.g7Rules[wId] = possibleOptions[idx];
+            SFX.click();
             renderUI();
         };
 
@@ -1327,15 +1379,26 @@ const app = {
             { id: 'kartu', emoji: '💳', name: 'Kartu' },
             { id: 'permata', emoji: '💎', name: 'Permata' },
             { id: 'buku', emoji: '📕', name: 'Buku' },
-            { id: 'apel', emoji: '🍎', name: 'Apel' }
+            { id: 'apel', emoji: '🍎', name: 'Apel' },
+            { id: 'pedang', emoji: '🗡️', name: 'Pedang' },
+            { id: 'tameng', emoji: '🛡️', name: 'Tameng' },
+            { id: 'obat', emoji: '💊', name: 'Obat' },
+            { id: 'koin', emoji: '🪙', name: 'Koin' },
+            { id: 'peta', emoji: '🗺️', name: 'Peta' },
+            { id: 'kamera', emoji: '📷', name: 'Kamera' },
+            { id: 'senter', emoji: '🔦', name: 'Senter' },
+            { id: 'jam', emoji: '⏰', name: 'Jam' },
+            { id: 'magnet', emoji: '🧲', name: 'Magnet' },
+            { id: 'kacamata', emoji: '👓', name: 'Kacamata' }
         ];
         
         let shuffled = [...items].sort(() => 0.5 - Math.random());
-        this.g11Items = shuffled.slice(0, 5); // display 5 items
+        this.g11Items = shuffled.slice(0, 6); // display 6 items for more challenge
         this.g11Selected = [];
         
-        // Pilih mode secara acak: AND atau OR
-        this.g11Mode = Math.random() > 0.5 ? 'AND' : 'OR';
+        // Pilih mode secara acak: AND, OR, atau NOT
+        const modes = ['AND', 'OR', 'NOT_AND'];
+        this.g11Mode = modes[Math.floor(Math.random() * modes.length)];
         
         let target1 = this.g11Items[0];
         let target2 = this.g11Items[1];
@@ -1344,8 +1407,10 @@ const app = {
             let ruleText = '';
             if (this.g11Mode === 'AND') {
                 ruleText = `Bawa <b>${target1.name} ${target1.emoji}</b> DAN <b>${target2.name} ${target2.emoji}</b>`;
-            } else {
+            } else if (this.g11Mode === 'OR') {
                 ruleText = `Bawa <b>${target1.name} ${target1.emoji}</b> ATAU <b>${target2.name} ${target2.emoji}</b> <br><small style="color:#e74c3c;">(Hanya boleh bawa SATU saja dari keduanya!)</small>`;
+            } else {
+                ruleText = `Bawa APAPUN KECUALI <b>${target1.name} ${target1.emoji}</b> maupun <b>${target2.name} ${target2.emoji}</b> <br><small style="color:#e74c3c;">(Bawa minimal 2 barang lain!)</small>`;
             }
 
             let itemsHtml = this.g11Items.map(item => {
@@ -1393,18 +1458,30 @@ const app = {
             let otherItems = this.g11Selected.filter(id => id !== target1.id && id !== target2.id).length;
 
             let win = false;
-            // Jika bawa barang sampah, gagal
-            if (otherItems > 0) {
-                this.showNotif("❌ Kamu membawa barang yang tidak diperlukan! Brankas menolak.");
-                this.showFeedback(false);
-                return;
-            }
-
+            
             if (this.g11Mode === 'AND') {
+                if (otherItems > 0) {
+                    this.showNotif("❌ Kamu membawa barang ekstra yang tidak diperlukan!");
+                    this.showFeedback(false);
+                    return;
+                }
                 win = hasT1 && hasT2;
-            } else {
-                // XOR: Harus bawa T1 atau T2, tidak boleh dua-duanya (agar lebih menantang untuk anak)
+            } else if (this.g11Mode === 'OR') {
+                if (otherItems > 0) {
+                    this.showNotif("❌ Kamu membawa barang ekstra yang tidak diperlukan!");
+                    this.showFeedback(false);
+                    return;
+                }
+                // XOR
                 win = (hasT1 || hasT2) && !(hasT1 && hasT2);
+            } else {
+                // NOT AND mode (bawa selain t1 dan t2)
+                if (hasT1 || hasT2) {
+                    this.showNotif("❌ Kamu membawa barang yang dilarang!");
+                    this.showFeedback(false);
+                    return;
+                }
+                win = otherItems >= 2;
             }
 
             this.showFeedback(win);
