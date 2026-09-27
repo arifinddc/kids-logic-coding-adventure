@@ -43,6 +43,9 @@ const app = {
         } else if (this.currentGame === 4) {
             this.el.gameTitle.innerText = "🧠 Koding Matriks";
             this.initGame4();
+        } else if (this.currentGame === 5) {
+            this.el.gameTitle.innerText = "🖌️ Koding Pola Warna";
+            this.initGame5();
         }
     },
 
@@ -357,5 +360,100 @@ const app = {
 
     checkAnswer4(selected, correct) {
         this.showFeedback(selected === correct);
+    },
+
+    // ==========================================
+    // GAME 5: KODING POLA WARNA (Color Painting Logic)
+    // ==========================================
+    initGame5() {
+        const shapesMap = [
+            { id: 'tri', empty: '△', filled: '▲', color: '#e74c3c' },
+            { id: 'sqr', empty: '□', filled: '■', color: '#3498db' },
+            { id: 'cir', empty: '○', filled: '●', color: '#2ecc71' },
+            { id: 'str', empty: '☆', filled: '★', color: '#f1c40f' }
+        ];
+
+        this.g5Brush = null;
+        
+        // Generate 8 random grid items
+        this.g5Grid = [];
+        for(let i=0; i<8; i++) {
+            let s = shapesMap[Math.floor(Math.random() * shapesMap.length)];
+            this.g5Grid.push({
+                type: s,
+                currentColor: null
+            });
+        }
+
+        const renderDictionary = () => {
+            return shapesMap.map(s => `
+                <div style="display:flex; flex-direction:column; align-items:center; background:white; padding:10px 20px; border-radius:10px; border:2px solid #eee;">
+                    <span style="font-size:3rem; color:${s.color}; text-shadow:1px 1px 0 #ccc; line-height:1;">${s.filled}</span>
+                </div>
+            `).join('');
+        };
+
+        const renderPalette = () => {
+            return shapesMap.map(s => `
+                <div onclick="app.setBrush5('${s.color}')" style="width:50px; height:50px; border-radius:50%; background:${s.color}; border: ${this.g5Brush === s.color ? '4px solid #333' : '2px solid #ccc'}; cursor:pointer; transform: ${this.g5Brush === s.color ? 'scale(1.2)' : 'scale(1)'}; transition:all 0.2s;"></div>
+            `).join('');
+        };
+
+        this.renderGrid5 = () => {
+            return this.g5Grid.map((item, idx) => {
+                let char = item.currentColor ? item.type.filled : item.type.empty;
+                let col = item.currentColor || '#555';
+                return `
+                    <div onclick="app.paintShape5(${idx})" style="font-size:4rem; cursor:pointer; color:${col}; text-shadow:1px 1px 0 #ddd; display:inline-block; margin:10px; line-height:1; width:60px; text-align:center;">
+                        ${char}
+                    </div>
+                `;
+            }).join('');
+        };
+
+        this.drawUI5 = () => {
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px; font-size:1.2rem;">Panduan Warna:</div>
+                <div style="display:flex; justify-content:center; gap:15px; margin-bottom:20px;">
+                    ${renderDictionary()}
+                </div>
+                
+                <div class="subtitle" style="margin-bottom:10px; font-size:1.2rem;">Pilih Kuas:</div>
+                <div style="display:flex; justify-content:center; gap:15px; margin-bottom:25px; background:#f8f9fa; padding:15px; border-radius:20px; width:fit-content; margin-left:auto; margin-right:auto; border:2px solid #ddd;">
+                    ${renderPalette()}
+                </div>
+
+                <div class="subtitle" style="margin-bottom:10px; font-size:1.2rem;">Warnai bentuk di bawah ini sesuai panduan!</div>
+                <div id="g5-grid-container" style="background:white; border:3px dashed #ccc; padding:20px; border-radius:15px; margin-bottom:20px; max-width:400px; margin-left:auto; margin-right:auto;">
+                    ${this.renderGrid5()}
+                </div>
+                
+                <button class="run-btn" onclick="app.checkWin5()" style="padding:15px 40px; font-size:1.5rem; margin-top:10px;">✅ CEK JAWABAN</button>
+            `;
+        };
+
+        this.setBrush5 = (color) => {
+            this.g5Brush = color;
+            this.drawUI5();
+        };
+
+        this.paintShape5 = (idx) => {
+            if(!this.g5Brush) return;
+            this.g5Grid[idx].currentColor = this.g5Brush;
+            document.getElementById('g5-grid-container').innerHTML = this.renderGrid5();
+        };
+
+        this.checkWin5 = () => {
+            let isWin = true;
+            for(let item of this.g5Grid) {
+                if(item.currentColor !== item.type.color) {
+                    isWin = false;
+                    break;
+                }
+            }
+            this.showFeedback(isWin);
+        };
+
+        this.drawUI5();
     }
 };
