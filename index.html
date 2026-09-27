@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kids Logic & Coding Adventure</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Main Menu Screen -->
+        <div id="main-menu" class="screen active">
+            <h1 class="bounce-in">🌟 Kids Coding Adventure 🌟</h1>
+            <p class="subtitle">Pilih permainan seru di bawah ini!</p>
+            <div class="menu-container">
+                <button class="menu-btn game1" onclick="app.startGame(1)">
+                    <span class="emoji">🚗</span>
+                    <span class="text">1. Koding Arah</span>
+                </button>
+                <button class="menu-btn game2" onclick="app.startGame(2)">
+                    <span class="emoji">🎨</span>
+                    <span class="text">2. Kode Warna</span>
+                </button>
+                <button class="menu-btn game3" onclick="app.startGame(3)">
+                    <span class="emoji">🦁</span>
+                    <span class="text">3. Koding Matematika</span>
+                </button>
+                <button class="menu-btn game4" onclick="app.startGame(4)">
+                    <span class="emoji">🎲</span>
+                    <span class="text">4. Dadu Angka</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="top-bar">
+                <button class="btn back-btn" onclick="app.showMainMenu()">⬅️ Kembali</button>
+                <h2 id="game-title">Judul Game</h2>
+                <div class="score-display">⭐ <span id="score">0</span></div>
+            </div>
+            
+            <div id="game-content">
+                <!-- Konten game akan dirender di sini oleh JavaScript -->
+            </div>
+
+            <!-- Pesan Feedback -->
+            <div id="feedback-overlay" class="overlay hidden">
+                <div class="feedback-box">
+                    <h3 id="feedback-message">Yey, Benar! 🎉</h3>
+                    <button class="btn btn-primary" id="next-btn" onclick="app.nextLevel()">Lanjut!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Script -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
