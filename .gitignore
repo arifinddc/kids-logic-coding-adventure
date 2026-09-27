@@ -10,3 +10,6 @@ ASSETS.md
 scratch/
 node_modules/
 .DS_Store
+
+# IDE & AI Agent Config
+.agents/
