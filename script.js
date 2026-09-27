@@ -1,3 +1,79 @@
+// ==========================================
+// KATALOG SKIN
+// ==========================================
+const SKIN_CATALOG = {
+    player: [
+        { id: 'car', emoji: '🚗', name: 'Mobil', price: 0 },
+        { id: 'taxi', emoji: '🚕', name: 'Taksi', price: 50 },
+        { id: 'police', emoji: '🚓', name: 'Polisi', price: 80 },
+        { id: 'racing', emoji: '🏎️', name: 'Balap', price: 120 },
+        { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 100 },
+        { id: 'tractor', emoji: '🚜', name: 'Traktor', price: 80 },
+    ],
+    target: [
+        { id: 'house', emoji: '🏠', name: 'Rumah', price: 0 },
+        { id: 'castle', emoji: '🏰', name: 'Kastil', price: 80 },
+        { id: 'school', emoji: '🏫', name: 'Sekolah', price: 60 },
+        { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 100 },
+    ],
+    robot: [
+        { id: 'robot', emoji: '🤖', name: 'Robot', price: 0 },
+        { id: 'alien', emoji: '👾', name: 'Alien', price: 100 },
+        { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 150 },
+        { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 120 },
+    ],
+    battery: [
+        { id: 'battery', emoji: '🔋', name: 'Baterai', price: 0 },
+        { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 50 },
+        { id: 'diamond', emoji: '💎', name: 'Permata', price: 120 },
+    ],
+    animals: [
+        { id: 'cat', emoji: '🐱', name: 'Kucing', price: 30 },
+        { id: 'dog', emoji: '🐶', name: 'Anjing', price: 30 },
+        { id: 'panda', emoji: '🐼', name: 'Panda', price: 50 },
+        { id: 'koala', emoji: '🐨', name: 'Koala', price: 50 },
+        { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 40 },
+    ]
+};
+
+// ==========================================
+// FUNGSI PENYIMPANAN (localStorage)
+// ==========================================
+function loadData() {
+    const raw = localStorage.getItem('kidsCodingData');
+    if (raw) return JSON.parse(raw);
+    return {
+        totalScore: 0,
+        ownedSkins: {
+            player: ['car'],
+            target: ['house'],
+            robot: ['robot'],
+            battery: ['battery'],
+            animals: []
+        },
+        activeSkin: {
+            player: 'car',
+            target: 'house',
+            robot: 'robot',
+            battery: 'battery'
+        }
+    };
+}
+
+function saveData(data) {
+    localStorage.setItem('kidsCodingData', JSON.stringify(data));
+}
+
+// ==========================================
+// HELPER: Ambil emoji aktif
+// ==========================================
+function getActiveSkinEmoji(category) {
+    const data = loadData();
+    const activeId = data.activeSkin[category];
+    const item = SKIN_CATALOG[category].find(s => s.id === activeId);
+    return item ? item.emoji : SKIN_CATALOG[category][0].emoji;
+}
+
 const app = {
     currentGame: null,
     score: 0,
@@ -7,25 +83,76 @@ const app = {
     el: {
         mainMenu: document.getElementById('main-menu'),
         gameScreen: document.getElementById('game-screen'),
+        shopScreen: document.getElementById('shop-screen'),
+        lockerScreen: document.getElementById('locker-screen'),
         gameTitle: document.getElementById('game-title'),
         gameContent: document.getElementById('game-content'),
+        shopContent: document.getElementById('shop-content'),
+        lockerContent: document.getElementById('locker-content'),
         score: document.getElementById('score'),
+        menuScore: document.getElementById('menu-score'),
+        shopScore: document.getElementById('shop-score'),
+        lockerScore: document.getElementById('locker-score'),
         feedbackOverlay: document.getElementById('feedback-overlay'),
         feedbackMessage: document.getElementById('feedback-message'),
+        notifOverlay: document.getElementById('notif-overlay'),
+        notifMessage: document.getElementById('notif-message'),
+    },
+
+    init() {
+        const data = loadData();
+        this.score = data.totalScore;
+        this.updateScoreDisplays();
+    },
+
+    updateScoreDisplays() {
+        this.el.score.innerText = this.score;
+        this.el.menuScore.innerText = this.score;
+        this.el.shopScore.innerText = this.score;
+        this.el.lockerScore.innerText = this.score;
+    },
+
+    hideAllScreens() {
+        this.el.mainMenu.classList.remove('active');
+        this.el.gameScreen.classList.remove('active');
+        this.el.shopScreen.classList.remove('active');
+        this.el.lockerScreen.classList.remove('active');
     },
 
     startGame(gameId) {
         this.currentGame = gameId;
         this.currentLevel = 1;
-        this.el.mainMenu.classList.remove('active');
+        this.hideAllScreens();
         this.el.gameScreen.classList.add('active');
         this.loadGame();
     },
 
     showMainMenu() {
-        this.el.gameScreen.classList.remove('active');
+        this.hideAllScreens();
         this.el.mainMenu.classList.add('active');
         this.currentGame = null;
+        this.updateScoreDisplays();
+    },
+
+    showShop() {
+        this.hideAllScreens();
+        this.el.shopScreen.classList.add('active');
+        this.renderShop();
+    },
+
+    showLocker() {
+        this.hideAllScreens();
+        this.el.lockerScreen.classList.add('active');
+        this.renderLocker();
+    },
+
+    closeNotif() {
+        this.el.notifOverlay.classList.add('hidden');
+    },
+
+    showNotif(msg) {
+        this.el.notifMessage.innerText = msg;
+        this.el.notifOverlay.classList.remove('hidden');
     },
 
     loadGame() {
@@ -67,13 +194,16 @@ const app = {
             this.el.feedbackMessage.innerText = "Yey, Jawabanmu Benar! 🎉";
             this.el.feedbackMessage.style.color = "var(--primary)";
             this.score += 10;
-            this.el.score.innerText = this.score;
+            // Simpan skor ke localStorage
+            const data = loadData();
+            data.totalScore = this.score;
+            saveData(data);
+            this.updateScoreDisplays();
             this.el.feedbackOverlay.classList.remove('hidden');
         } else {
             this.el.gameContent.classList.add('shake');
             setTimeout(() => this.el.gameContent.classList.remove('shake'), 500);
             
-            // Optional: Show try again message without blocking
             const prevMsg = this.el.gameTitle.innerText;
             this.el.gameTitle.innerText = "Ups! Coba lagi ya 🤔";
             setTimeout(() => this.el.gameTitle.innerText = prevMsg, 2000);
@@ -103,13 +233,16 @@ const app = {
         let sequence = [];
         let isRunning = false;
 
+        const playerEmoji = getActiveSkinEmoji('player');
+        const targetEmoji = getActiveSkinEmoji('target');
+
         const drawGrid = () => {
             let html = `<div class="grid-board">`;
             for (let y = 0; y < size; y++) {
                 for (let x = 0; x < size; x++) {
                     let icon = '';
-                    if (x === playerPos.x && y === playerPos.y) icon = '🚗';
-                    else if (x === targetPos.x && y === targetPos.y) icon = '🏠';
+                    if (x === playerPos.x && y === playerPos.y) icon = playerEmoji;
+                    else if (x === targetPos.x && y === targetPos.y) icon = targetEmoji;
                     html += `<div class="grid-cell">${icon}</div>`;
                 }
             }
@@ -491,13 +624,15 @@ const app = {
         let targetPos = Math.floor(Math.random() * 2) + 4; // 4 atau 5
         let loopCount = 1;
         let isRunning = false;
+        const playerEmoji = getActiveSkinEmoji('player');
+        const targetEmoji = getActiveSkinEmoji('target');
 
         const drawGrid = () => {
             let html = `<div style="display:flex; justify-content:center; gap:5px; margin-bottom:20px;">`;
             for(let i=0; i<size; i++) {
                 let icon = '';
-                if(i === playerPos) icon = '🚗';
-                else if(i === targetPos) icon = '🏠';
+                if(i === playerPos) icon = playerEmoji;
+                else if(i === targetPos) icon = targetEmoji;
                 html += `<div style="width:60px; height:60px; border:2px solid #ccc; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; background:white;">${icon}</div>`;
             }
             html += `</div>`;
@@ -662,29 +797,27 @@ const app = {
             y: Math.floor(Math.random() * 2) + 2 
         };
         
-        // Buat path yang benar (bentuk L)
         let correctSeq = [];
         for(let i=0; i < targetPos.x - startPos.x; i++) correctSeq.push('R');
         for(let i=0; i < targetPos.y - startPos.y; i++) correctSeq.push('D');
-        
-        // Acak sedikit urutannya agar tidak selalu R dulu baru D (tapi pastikan tetap jalan mulus)
         correctSeq.sort(() => 0.5 - Math.random());
         
-        // Suntikkan 1 buah bug di indeks acak
         this.g8Seq = [...correctSeq];
         let bugIdx = Math.floor(Math.random() * this.g8Seq.length);
         let bugOptions = ['U', 'D', 'L', 'R'].filter(c => c !== this.g8Seq[bugIdx]);
         this.g8Seq[bugIdx] = bugOptions[Math.floor(Math.random() * bugOptions.length)];
         
         let isRunning = false;
+        const robotEmoji = getActiveSkinEmoji('robot');
+        const batteryEmoji = getActiveSkinEmoji('battery');
 
         const drawGrid = (pX, pY) => {
             let html = `<div class="grid-board" style="margin:0 auto 20px;">`;
             for (let y = 0; y < size; y++) {
                 for (let x = 0; x < size; x++) {
                     let icon = '';
-                    if (x === pX && y === pY) icon = '🤖';
-                    else if (x === targetPos.x && y === targetPos.y) icon = '🔋';
+                    if (x === pX && y === pY) icon = robotEmoji;
+                    else if (x === targetPos.x && y === targetPos.y) icon = batteryEmoji;
                     html += `<div class="grid-cell">${icon}</div>`;
                 }
             }
@@ -822,5 +955,133 @@ const app = {
         };
 
         renderUI();
+    },
+
+    // ==========================================
+    // TOKO (SHOP)
+    // ==========================================
+    renderShop() {
+        const data = loadData();
+        const categories = [
+            { key: 'player', title: '🚗 Kendaraan (Game 1 & 6)' },
+            { key: 'target', title: '🏠 Target / Tujuan (Game 1 & 6)' },
+            { key: 'robot', title: '🤖 Karakter Robot (Game 8)' },
+            { key: 'battery', title: '🔋 Target Robot (Game 8)' },
+            { key: 'animals', title: '🦁 Hewan Bonus (Game 3)' }
+        ];
+
+        let html = '';
+        for (const cat of categories) {
+            html += `<div class="shop-category">`;
+            html += `<div class="shop-category-title">${cat.title}</div>`;
+            html += `<div class="skin-grid">`;
+            for (const item of SKIN_CATALOG[cat.key]) {
+                const owned = data.ownedSkins[cat.key].includes(item.id);
+                const isActive = data.activeSkin[cat.key] === item.id;
+                let cardClass = 'skin-card';
+                if (owned) cardClass += ' owned';
+                if (isActive) cardClass += ' active-skin';
+                if (!owned) cardClass += ' locked';
+
+                let badge = '';
+                if (isActive) badge = '<div class="skin-badge active-badge">⭐ Aktif</div>';
+                else if (owned) badge = '<div class="skin-badge">✅</div>';
+
+                let priceHtml = '';
+                if (item.price === 0) {
+                    priceHtml = '<div class="skin-price free">Gratis</div>';
+                } else if (owned) {
+                    priceHtml = '<div class="skin-price free">Dimiliki</div>';
+                } else {
+                    priceHtml = `<div class="skin-price">⭐ ${item.price}</div>`;
+                }
+
+                const onclick = owned ? '' : `onclick="app.buySkin('${cat.key}', '${item.id}')"`;
+
+                html += `
+                    <div class="${cardClass}" ${onclick}>
+                        ${badge}
+                        <span class="skin-emoji">${item.emoji}</span>
+                        <div class="skin-name">${item.name}</div>
+                        ${priceHtml}
+                    </div>
+                `;
+            }
+            html += `</div></div>`;
+        }
+        this.el.shopContent.innerHTML = html;
+    },
+
+    buySkin(category, itemId) {
+        const data = loadData();
+        const item = SKIN_CATALOG[category].find(s => s.id === itemId);
+        if (!item) return;
+        if (data.ownedSkins[category].includes(itemId)) return;
+        if (data.totalScore < item.price) {
+            this.showNotif(`❌ Skor tidak cukup! Butuh ⭐${item.price}, kamu punya ⭐${data.totalScore}`);
+            return;
+        }
+        // Beli!
+        data.totalScore -= item.price;
+        data.ownedSkins[category].push(itemId);
+        saveData(data);
+        this.score = data.totalScore;
+        this.updateScoreDisplays();
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+        this.showNotif(`🎉 Berhasil membeli ${item.emoji} ${item.name}!`);
+        this.renderShop();
+    },
+
+    // ==========================================
+    // LOKER (Pilih Skin Aktif)
+    // ==========================================
+    renderLocker() {
+        const data = loadData();
+        const categories = [
+            { key: 'player', title: '🚗 Kendaraan Aktif' },
+            { key: 'target', title: '🏠 Target Aktif' },
+            { key: 'robot', title: '🤖 Karakter Robot Aktif' },
+            { key: 'battery', title: '🔋 Target Robot Aktif' }
+        ];
+
+        let html = '';
+        for (const cat of categories) {
+            html += `<div class="shop-category">`;
+            html += `<div class="shop-category-title">${cat.title}</div>`;
+            html += `<div class="skin-grid">`;
+            for (const item of SKIN_CATALOG[cat.key]) {
+                const owned = data.ownedSkins[cat.key].includes(item.id);
+                if (!owned) continue; // Hanya tampilkan yang dimiliki
+                const isActive = data.activeSkin[cat.key] === item.id;
+                let cardClass = 'skin-card owned';
+                if (isActive) cardClass += ' active-skin';
+
+                let badge = isActive ? '<div class="skin-badge active-badge">⭐ Aktif</div>' : '';
+                let btnClass = isActive ? 'locker-select-btn selected' : 'locker-select-btn';
+                let btnText = isActive ? '⭐ Dipakai' : 'Pilih';
+
+                html += `
+                    <div class="${cardClass}">
+                        ${badge}
+                        <span class="skin-emoji">${item.emoji}</span>
+                        <div class="skin-name">${item.name}</div>
+                        <button class="${btnClass}" onclick="app.selectSkin('${cat.key}', '${item.id}')">${btnText}</button>
+                    </div>
+                `;
+            }
+            html += `</div></div>`;
+        }
+        this.el.lockerContent.innerHTML = html;
+    },
+
+    selectSkin(category, itemId) {
+        const data = loadData();
+        if (!data.ownedSkins[category].includes(itemId)) return;
+        data.activeSkin[category] = itemId;
+        saveData(data);
+        this.renderLocker();
     }
 };
+
+// Inisialisasi
+app.init();

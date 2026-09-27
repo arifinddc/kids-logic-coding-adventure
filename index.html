@@ -56,6 +56,40 @@
                     <span class="text">9. Koding Fungsi</span>
                 </button>
             </div>
+            <!-- Menu Footer: Toko & Loker -->
+            <div class="menu-footer">
+                <button class="menu-footer-btn shop-btn" onclick="app.showShop()">
+                    <span>🛒</span> Toko
+                </button>
+                <button class="menu-footer-btn locker-btn" onclick="app.showLocker()">
+                    <span>👕</span> Loker
+                </button>
+                <div class="menu-score-display">⭐ <span id="menu-score">0</span></div>
+            </div>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shop-screen" class="screen">
+            <div class="top-bar">
+                <button class="btn back-btn" onclick="app.showMainMenu()">⬅️ Kembali</button>
+                <h2 id="shop-title">🛒 Toko Karakter</h2>
+                <div class="score-display">⭐ <span id="shop-score">0</span></div>
+            </div>
+            <div id="shop-content">
+                <!-- Dirender oleh JavaScript -->
+            </div>
+        </div>
+
+        <!-- Locker Screen -->
+        <div id="locker-screen" class="screen">
+            <div class="top-bar">
+                <button class="btn back-btn" onclick="app.showMainMenu()">⬅️ Kembali</button>
+                <h2 id="locker-title">👕 Loker Skin</h2>
+                <div class="score-display">⭐ <span id="locker-score">0</span></div>
+            </div>
+            <div id="locker-content">
+                <!-- Dirender oleh JavaScript -->
+            </div>
         </div>
 
         <!-- Game Screen -->
@@ -76,6 +110,14 @@
                     <h3 id="feedback-message">Yey, Benar! 🎉</h3>
                     <button class="btn btn-primary" id="next-btn" onclick="app.nextLevel()">Lanjut!</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Notifikasi Overlay (Pembelian Berhasil) -->
+        <div id="notif-overlay" class="overlay hidden">
+            <div class="feedback-box">
+                <h3 id="notif-message">🎉</h3>
+                <button class="btn btn-primary" onclick="app.closeNotif()">OK!</button>
             </div>
         </div>
     </div>

@@ -384,3 +384,178 @@ h2#game-title {
     50% { transform: translateX(10px); }
     75% { transform: translateX(-10px); }
 }
+
+/* Menu Footer (Toko & Loker) */
+.menu-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.menu-footer-btn {
+    background: rgba(255,255,255,0.95);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    font-family: 'Fredoka', sans-serif;
+    color: #333;
+}
+.menu-footer-btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+.shop-btn { color: #e17055; }
+.locker-btn { color: #6c5ce7; }
+.menu-score-display {
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.95);
+    padding: 10px 20px;
+    border-radius: 15px;
+    color: #d35400;
+}
+
+/* Shop & Locker Content */
+#shop-content, #locker-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+}
+
+.shop-category {
+    margin-bottom: 25px;
+}
+.shop-category-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 3px dashed #eee;
+    text-align: center;
+}
+.skin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    padding: 0 10px;
+}
+.skin-card {
+    background: white;
+    border: 3px solid #eee;
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+.skin-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+.skin-card.owned {
+    border-color: #2ecc71;
+    background: #f0fff0;
+}
+.skin-card.active-skin {
+    border-color: #f39c12;
+    background: #fffbf0;
+    box-shadow: 0 0 0 3px #f39c12;
+}
+.skin-card.locked {
+    opacity: 0.7;
+}
+.skin-card .skin-emoji {
+    font-size: 2.8rem;
+    display: block;
+    margin-bottom: 6px;
+}
+.skin-card .skin-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+}
+.skin-card .skin-price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #d35400;
+    background: #fff3cd;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+.skin-card .skin-price.free {
+    background: #d4edda;
+    color: #155724;
+}
+.skin-card .skin-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #2ecc71;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+.skin-card .skin-badge.active-badge {
+    background: #f39c12;
+}
+
+/* Locker select button */
+.locker-select-btn {
+    margin-top: 8px;
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Fredoka', sans-serif;
+    transition: all 0.15s;
+}
+.locker-select-btn:active {
+    transform: scale(0.95);
+}
+.locker-select-btn.selected {
+    background: #f39c12;
+}
+
+@media (max-width: 600px) {
+    .menu-footer {
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 10px 15px;
+        gap: 8px;
+    }
+    .menu-footer-btn {
+        padding: 10px 16px;
+        font-size: 1.1rem;
+    }
+    .menu-score-display {
+        font-size: 1.1rem;
+        padding: 8px 14px;
+    }
+    .skin-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    .skin-card .skin-emoji { font-size: 2.2rem; }
+    .skin-card .skin-name { font-size: 0.75rem; }
+}
