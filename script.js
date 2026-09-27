@@ -4,36 +4,87 @@
 const SKIN_CATALOG = {
     player: [
         { id: 'car', emoji: '🚗', name: 'Mobil', price: 0 },
-        { id: 'taxi', emoji: '🚕', name: 'Taksi', price: 50 },
-        { id: 'police', emoji: '🚓', name: 'Polisi', price: 80 },
-        { id: 'racing', emoji: '🏎️', name: 'Balap', price: 120 },
-        { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 100 },
-        { id: 'tractor', emoji: '🚜', name: 'Traktor', price: 80 },
+        { id: 'taxi', emoji: '🚕', name: 'Taksi', price: 150 },
+        { id: 'police', emoji: '🚓', name: 'Polisi', price: 250 },
+        { id: 'racing', emoji: '🏎️', name: 'Balap', price: 400 },
+        { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 300 },
+        { id: 'tractor', emoji: '🚜', name: 'Traktor', price: 200 },
     ],
     target: [
         { id: 'house', emoji: '🏠', name: 'Rumah', price: 0 },
-        { id: 'castle', emoji: '🏰', name: 'Kastil', price: 80 },
-        { id: 'school', emoji: '🏫', name: 'Sekolah', price: 60 },
-        { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 100 },
+        { id: 'castle', emoji: '🏰', name: 'Kastil', price: 250 },
+        { id: 'school', emoji: '🏫', name: 'Sekolah', price: 180 },
+        { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 350 },
     ],
     robot: [
         { id: 'robot', emoji: '🤖', name: 'Robot', price: 0 },
-        { id: 'alien', emoji: '👾', name: 'Alien', price: 100 },
-        { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 150 },
-        { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 120 },
+        { id: 'alien', emoji: '👾', name: 'Alien', price: 300 },
+        { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 500 },
+        { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 400 },
     ],
     battery: [
         { id: 'battery', emoji: '🔋', name: 'Baterai', price: 0 },
-        { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 50 },
-        { id: 'diamond', emoji: '💎', name: 'Permata', price: 120 },
+        { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 150 },
+        { id: 'diamond', emoji: '💎', name: 'Permata', price: 400 },
     ],
     animals: [
-        { id: 'cat', emoji: '🐱', name: 'Kucing', price: 30 },
-        { id: 'dog', emoji: '🐶', name: 'Anjing', price: 30 },
-        { id: 'panda', emoji: '🐼', name: 'Panda', price: 50 },
-        { id: 'koala', emoji: '🐨', name: 'Koala', price: 50 },
-        { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 40 },
+        { id: 'cat', emoji: '🐱', name: 'Kucing', price: 100 },
+        { id: 'dog', emoji: '🐶', name: 'Anjing', price: 100 },
+        { id: 'panda', emoji: '🐼', name: 'Panda', price: 180 },
+        { id: 'koala', emoji: '🐨', name: 'Koala', price: 180 },
+        { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 150 },
     ]
+};
+// ==========================================
+// SISTEM SUARA (Web Audio API)
+// ==========================================
+const SFX = {
+    _ctx: null,
+    _getCtx() {
+        if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+        return this._ctx;
+    },
+    _play(freq, type, duration, vol = 0.3) {
+        try {
+            const ctx = this._getCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.value = vol;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration);
+        } catch(e) {}
+    },
+    click() {
+        this._play(800, 'sine', 0.08, 0.2);
+    },
+    correct() {
+        const ctx = this._getCtx();
+        [523, 659, 784].forEach((f, i) => {
+            setTimeout(() => this._play(f, 'sine', 0.2, 0.25), i * 100);
+        });
+    },
+    wrong() {
+        this._play(200, 'square', 0.3, 0.15);
+        setTimeout(() => this._play(150, 'square', 0.4, 0.15), 150);
+    },
+    buy() {
+        [1047, 1319, 1568].forEach((f, i) => {
+            setTimeout(() => this._play(f, 'sine', 0.15, 0.2), i * 80);
+        });
+    },
+    reward() {
+        [523, 659, 784, 1047].forEach((f, i) => {
+            setTimeout(() => this._play(f, 'triangle', 0.25, 0.2), i * 120);
+        });
+    },
+    step() {
+        this._play(440, 'sine', 0.06, 0.1);
+    }
 };
 
 // ==========================================
@@ -140,6 +191,15 @@ const app = {
         const data = loadData();
         this.score = data.totalScore;
         this.updateScoreDisplays();
+        
+        // SFX Click Global
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button') || e.target.closest('.menu-btn') || e.target.closest('.skin-card') || e.target.closest('.control-btn')) {
+                // Untuk tombol spesifik, SFX click ditimpa dengan SFX yang lebih spesifik
+                if (e.target.closest('#daily-claim-btn')) return; 
+                SFX.click();
+            }
+        });
     },
 
     updateScoreDisplays() {
@@ -235,17 +295,18 @@ const app = {
 
     showFeedback(isCorrect) {
         if (isCorrect) {
+            SFX.correct();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             this.el.feedbackMessage.innerText = "Yey, Jawabanmu Benar! 🎉";
             this.el.feedbackMessage.style.color = "var(--primary)";
             this.score += 10;
-            // Simpan skor ke localStorage
             const data = loadData();
             data.totalScore = this.score;
             saveData(data);
             this.updateScoreDisplays();
             this.el.feedbackOverlay.classList.remove('hidden');
         } else {
+            SFX.wrong();
             this.el.gameContent.classList.add('shake');
             setTimeout(() => this.el.gameContent.classList.remove('shake'), 500);
             
@@ -1063,6 +1124,7 @@ const app = {
         if (!item) return;
         if (data.ownedSkins[category].includes(itemId)) return;
         if (data.totalScore < item.price) {
+            SFX.wrong();
             this.showNotif(`❌ Skor tidak cukup! Butuh ⭐${item.price}, kamu punya ⭐${data.totalScore}`);
             return;
         }
@@ -1072,6 +1134,7 @@ const app = {
         saveData(data);
         this.score = data.totalScore;
         this.updateScoreDisplays();
+        SFX.buy();
         confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
         this.showNotif(`🎉 Berhasil membeli ${item.emoji} ${item.name}!`);
         this.renderShop();
@@ -1178,33 +1241,61 @@ const app = {
                 <div style="text-align:center; padding:10px 20px;">
                     <div style="font-size:1.3rem; font-weight:700; color:var(--accent2); margin-bottom:10px;">🎬 Tonton Video Hari Ini!</div>
                     ${streakInfo}
-                    <div style="margin:0 auto 15px; max-width:320px; border-radius:15px; overflow:hidden; border:3px solid #ddd; aspect-ratio:9/16;">
-                        <iframe width="100%" height="100%" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none;"></iframe>
+                    <div id="daily-video-wrapper" style="position:relative; margin:0 auto 15px; max-width:320px; border-radius:15px; overflow:hidden; border:3px solid #ddd; aspect-ratio:9/16; background:#000;">
+                        <div id="daily-play-overlay" onclick="app.startDailyVideo()" style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5); cursor:pointer; z-index:2;">
+                            <div style="font-size:5rem; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">▶️</div>
+                        </div>
+                        <iframe id="daily-iframe" width="100%" height="100%" data-src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none;"></iframe>
                     </div>
-                    <div id="daily-timer-msg" style="font-size:1.1rem; color:#888; margin-bottom:15px;">⏳ Tonton 15 detik untuk klaim hadiah...</div>
+                    <div id="daily-timer-msg" style="font-size:1.1rem; color:#888; margin-bottom:15px;">👆 Tekan tombol play untuk mulai menonton</div>
                     <button id="daily-claim-btn" class="run-btn" onclick="app.claimDaily()" style="padding:15px 40px; font-size:1.5rem; opacity:0.4; pointer-events:none;">🎁 Klaim +20 ⭐</button>
                 </div>
             `;
-
-            // Timer 15 detik
-            let countdown = 15;
-            this._dailyTimer = setInterval(() => {
-                countdown--;
-                const msg = document.getElementById('daily-timer-msg');
-                const btn = document.getElementById('daily-claim-btn');
-                if (!msg || !btn) { clearInterval(this._dailyTimer); return; }
-
-                if (countdown <= 0) {
-                    clearInterval(this._dailyTimer);
-                    msg.innerHTML = '✅ Video selesai! Klaim hadiahmu sekarang!';
-                    msg.style.color = '#2ecc71';
-                    btn.style.opacity = '1';
-                    btn.style.pointerEvents = 'auto';
-                } else {
-                    msg.innerHTML = `⏳ Tunggu ${countdown} detik lagi...`;
-                }
-            }, 1000);
         }
+    },
+
+    startDailyVideo() {
+        const overlay = document.getElementById('daily-play-overlay');
+        const iframe = document.getElementById('daily-iframe');
+        if (!overlay || !iframe) return;
+
+        // Hide overlay and auto-play iframe
+        overlay.style.display = 'none';
+        iframe.src = iframe.getAttribute('data-src') + '?autoplay=1';
+
+        // Timer 15 detik mulai DARI SINI
+        let countdown = 15;
+        this._dailyTimer = setInterval(() => {
+            countdown--;
+            const msg = document.getElementById('daily-timer-msg');
+            const btn = document.getElementById('daily-claim-btn');
+            if (!msg || !btn) { clearInterval(this._dailyTimer); return; }
+
+            if (countdown <= 0) {
+                clearInterval(this._dailyTimer);
+                msg.innerHTML = '✅ Video selesai! Klaim hadiahmu sekarang!';
+                msg.style.color = '#2ecc71';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+
+                // Tambahkan tombol X di pojok video untuk stop
+                const wrapper = document.getElementById('daily-video-wrapper');
+                if (wrapper && !document.getElementById('daily-close-btn')) {
+                    const closeBtn = document.createElement('div');
+                    closeBtn.id = 'daily-close-btn';
+                    closeBtn.innerHTML = '❌ Tutup Video';
+                    closeBtn.style.cssText = 'position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.9); padding:5px 10px; border-radius:10px; cursor:pointer; font-weight:bold; z-index:3; box-shadow:0 2px 5px rgba(0,0,0,0.3); font-size: 0.9rem;';
+                    closeBtn.onclick = () => {
+                        iframe.src = ''; // stop video
+                        closeBtn.remove();
+                    };
+                    wrapper.appendChild(closeBtn);
+                }
+
+            } else {
+                msg.innerHTML = `⏳ Tunggu ${countdown} detik lagi...`;
+            }
+        }, 1000);
     },
 
     claimDaily() {
@@ -1238,6 +1329,7 @@ const app = {
         this.score = data.totalScore;
         this.updateScoreDisplays();
 
+        SFX.reward();
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         this.showNotif(`🎁 +${reward} ⭐ didapatkan!${bonusMsg}\n🔥 Streak: ${data.dailyStreak} hari`);
         this.renderDaily(); // Re-render untuk tampilkan "selesai"
