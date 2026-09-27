@@ -41,7 +41,7 @@ const app = {
             this.el.gameTitle.innerText = "🦁 Kode Matematika Hewan";
             this.initGame3();
         } else if (this.currentGame === 4) {
-            this.el.gameTitle.innerText = "🎲 Dadu Angka";
+            this.el.gameTitle.innerText = "🧠 Koding Matriks";
             this.initGame4();
         }
     },
@@ -291,25 +291,66 @@ const app = {
     },
 
     // ==========================================
-    // GAME 4: DADU ANGKA (Dice Counting)
+    // GAME 4: KODING MATRIKS (Shape & Color Logic)
     // ==========================================
     initGame4() {
-        const diceDots = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-        const num = Math.floor(Math.random() * 6) + 1; // 1-6
-        const diceChar = diceDots[num - 1];
+        const shapes = [
+            { icon: '▲', val: 2 },
+            { icon: '◼', val: 3 },
+            { icon: '●', val: 4 }
+        ];
+        
+        const colors = [
+            { name: 'Merah', code: '#e74c3c', val: 2 },
+            { name: 'Biru', code: '#3498db', val: 3 },
+            { name: 'Kuning', code: '#f1c40f', val: 4 }
+        ];
+        
+        let shuffShapes = [...shapes].sort(() => 0.5 - Math.random());
+        let shuffColors = [...colors].sort(() => 0.5 - Math.random());
+        
+        // Dictionary HTML
+        let dictHtml = `
+            <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center; margin-bottom:15px; font-size:1.2rem;">
+                <div style="background:#f8f9fa; padding:15px; border-radius:10px; border:2px solid #ddd; min-width:150px;">
+                    <div style="font-weight:bold; margin-bottom:10px; border-bottom:2px dashed #ccc; padding-bottom:5px;">Bentuk:</div>
+                    ${shuffShapes.map(s => `<div style="margin-bottom:5px;"><span style="font-size:1.8rem; color:#555; display:inline-block; width:30px; text-align:center;">${s.icon}</span> = ${s.val}</div>`).join('')}
+                </div>
+                <div style="background:#f8f9fa; padding:15px; border-radius:10px; border:2px solid #ddd; min-width:150px;">
+                    <div style="font-weight:bold; margin-bottom:10px; border-bottom:2px dashed #ccc; padding-bottom:5px;">Warna:</div>
+                    ${shuffColors.map(c => `<div style="margin-bottom:5px; display:flex; align-items:center;"><span style="display:inline-block; width:20px; height:20px; background:${c.code}; border-radius:5px; margin-right:10px; border:1px solid #aaa;"></span> ${c.name} = ${c.val}</div>`).join('')}
+                </div>
+            </div>
+        `;
 
-        let options = [num, num + 1, num > 1 ? num - 1 : num + 2];
+        // Pick 2 random combinations for the question
+        let shape1 = shuffShapes[Math.floor(Math.random() * shuffShapes.length)];
+        let color1 = shuffColors[Math.floor(Math.random() * shuffColors.length)];
+        
+        let shape2 = shuffShapes[Math.floor(Math.random() * shuffShapes.length)];
+        let color2 = shuffColors[Math.floor(Math.random() * shuffColors.length)];
+        
+        let val1 = shape1.val + color1.val;
+        let val2 = shape2.val + color2.val;
+        let answer = val1 + val2;
+
+        let options = [answer, answer + 1, answer - 1, answer + 2].filter(v => v > 0);
         options = [...new Set(options)].slice(0, 3);
-        if(!options.includes(num)) options[0] = num;
+        if(!options.includes(answer)) options[0] = answer;
         options.sort(() => 0.5 - Math.random());
 
         this.el.gameContent.innerHTML = `
-            <div class="subtitle" style="margin-bottom: 20px;">Hitung titik pada dadu dan tekan angkanya!</div>
-            <div style="font-size: 10rem; line-height: 1; margin-bottom: 40px; color: #2c3e50;">
-                ${diceChar}
+            ${dictHtml}
+            <div class="subtitle" style="margin-bottom: 20px;">Jumlahkan nilai <b>bentuk</b> dan <b>warna</b>-nya!</div>
+            <div class="equation" style="justify-content:center;">
+                <span style="font-size:5rem; color:${color1.code}; text-shadow: 1px 1px 0 #7f8c8d;">${shape1.icon}</span> 
+                <span style="font-size:3rem; margin:0 15px;">+</span> 
+                <span style="font-size:5rem; color:${color2.code}; text-shadow: 1px 1px 0 #7f8c8d;">${shape2.icon}</span> 
+                <span style="font-size:3rem; margin:0 15px;">=</span> 
+                <span style="font-size:4rem;">❓</span>
             </div>
-            <div class="options-container" style="justify-content: center;">
-                ${options.map(opt => `<button class="option-btn" style="border: 4px solid var(--primary); padding: 15px 40px; font-weight: bold; background: white;" onclick="app.checkAnswer4(${opt}, ${num})">${opt}</button>`).join('')}
+            <div class="options-container" style="justify-content: center; margin-top:20px;">
+                ${options.map(opt => `<button class="option-btn" style="border: 4px solid var(--primary); padding: 15px 40px; font-weight: bold; background: white;" onclick="app.checkAnswer4(${opt}, ${answer})">${opt}</button>`).join('')}
             </div>
         `;
     },
