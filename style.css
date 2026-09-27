@@ -130,6 +130,14 @@ h1 {
 .menu-btn.game2 { border-color: #ee5253; box-shadow: 0 6px 0 #ee5253; }
 .menu-btn.game3 { border-color: #0abde3; box-shadow: 0 6px 0 #0abde3; }
 .menu-btn.game4 { border-color: #10ac84; box-shadow: 0 6px 0 #10ac84; }
+.menu-btn.game5 { border-color: #f368e0; box-shadow: 0 6px 0 #f368e0; }
+.menu-btn.game6 { border-color: #5f27cd; box-shadow: 0 6px 0 #5f27cd; }
+.menu-btn.game7 { border-color: #e15f41; box-shadow: 0 6px 0 #e15f41; }
+.menu-btn.game8 { border-color: #3dc1d3; box-shadow: 0 6px 0 #3dc1d3; }
+.menu-btn.game9 { border-color: #303952; box-shadow: 0 6px 0 #303952; }
+.menu-btn.game10 { border-color: #1B1464; box-shadow: 0 6px 0 #1B1464; }
+.menu-btn.game11 { border-color: #6F1E51; box-shadow: 0 6px 0 #6F1E51; }
+.menu-btn.game12 { border-color: #EA2027; box-shadow: 0 6px 0 #EA2027; }
 
 .menu-btn:active {
     transform: translateY(6px);

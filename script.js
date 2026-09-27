@@ -288,8 +288,17 @@ const app = {
             this.el.gameTitle.innerText = "🐛 Tangkap Kutu (Debug)";
             this.initGame8();
         } else if (this.currentGame === 9) {
-            this.el.gameTitle.innerText = "👾 Koding Piksel";
+            this.el.gameTitle.innerText = "⚙️ Koding Fungsi";
             this.initGame9();
+        } else if (this.currentGame === 10) {
+            this.el.gameTitle.innerText = "👾 Koding Pixel (Binary)";
+            this.initGame10();
+        } else if (this.currentGame === 11) {
+            this.el.gameTitle.innerText = "🔐 Brankas (AND/OR)";
+            this.initGame11();
+        } else if (this.currentGame === 12) {
+            this.el.gameTitle.innerText = "📦 Mesin Sortir";
+            this.initGame12();
         }
     },
 
@@ -1215,7 +1224,244 @@ const app = {
         };
 
         renderUI();
+    // ==========================================
+    // GAME 10: KODING PIXEL (Binary Art)
+    // ==========================================
+    initGame10() {
+        const size = 5;
+        // Generate random simple pattern
+        this.g10Target = [];
+        this.g10Current = [];
+        for(let r=0; r<size; r++) {
+            let tr = [];
+            let cr = [];
+            for(let c=0; c<size; c++) {
+                // Random 0 or 1
+                tr.push(Math.random() > 0.5 ? 1 : 0);
+                cr.push(0);
+            }
+            this.g10Target.push(tr);
+            this.g10Current.push(cr);
+        }
+
+        const renderGrid = () => {
+            let html = `<div style="display:grid; grid-template-columns:repeat(5, 50px); gap:2px; background:#999; border:4px solid #555; border-radius:5px; padding:2px; margin:0 auto 20px; width:fit-content;">`;
+            for(let r=0; r<size; r++) {
+                for(let c=0; c<size; c++) {
+                    let bg = this.g10Current[r][c] === 1 ? '#333' : '#fff';
+                    html += `<div onclick="app.togglePixel10(${r},${c})" style="width:50px; height:50px; background:${bg}; cursor:pointer; border-radius:3px; transition:background 0.2s;"></div>`;
+                }
+            }
+            html += `</div>`;
+            return html;
+        };
+
+        const renderCode = () => {
+            let html = `<div style="background:#2d3436; color:#00b894; font-family:monospace; font-size:1.5rem; padding:15px; border-radius:10px; margin-bottom:20px; text-align:center; letter-spacing: 5px;">`;
+            for(let r=0; r<size; r++) {
+                html += `<div>${this.g10Target[r].join(' ')}</div>`;
+            }
+            html += `</div>`;
+            return html;
+        };
+
+        this.renderUI10 = () => {
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px;">Gambar pola pixel di bawah sesuai kode Array (0 = Putih, 1 = Hitam)!</div>
+                ${renderCode()}
+                <div id="g10-grid">${renderGrid()}</div>
+                <button class="run-btn" onclick="app.checkWin10()" style="padding:15px 40px; font-size:1.5rem;">✅ CEK GAMBAR</button>
+            `;
+        };
+
+        this.togglePixel10 = (r, c) => {
+            this.g10Current[r][c] = this.g10Current[r][c] === 1 ? 0 : 1;
+            SFX.click();
+            document.getElementById('g10-grid').innerHTML = renderGrid();
+        };
+
+        this.checkWin10 = () => {
+            let win = true;
+            for(let r=0; r<size; r++) {
+                for(let c=0; c<size; c++) {
+                    if (this.g10Current[r][c] !== this.g10Target[r][c]) win = false;
+                }
+            }
+            this.showFeedback(win);
+        };
+
+        this.renderUI10();
     },
+
+    // ==========================================
+    // GAME 11: BRANKAS RAHASIA (Logika Boolean)
+    // ==========================================
+    initGame11() {
+        const items = [
+            { id: 'kunci', emoji: '🔑', name: 'Kunci' },
+            { id: 'kartu', emoji: '💳', name: 'Kartu' },
+            { id: 'permata', emoji: '💎', name: 'Permata' },
+            { id: 'buku', emoji: '📕', name: 'Buku' },
+            { id: 'apel', emoji: '🍎', name: 'Apel' }
+        ];
+        
+        let shuffled = [...items].sort(() => 0.5 - Math.random());
+        this.g11Items = shuffled.slice(0, 5); // display 5 items
+        this.g11Selected = [];
+        
+        // Pilih mode secara acak: AND atau OR
+        this.g11Mode = Math.random() > 0.5 ? 'AND' : 'OR';
+        
+        let target1 = this.g11Items[0];
+        let target2 = this.g11Items[1];
+
+        this.renderUI11 = () => {
+            let ruleText = '';
+            if (this.g11Mode === 'AND') {
+                ruleText = `Bawa <b>${target1.name} ${target1.emoji}</b> DAN <b>${target2.name} ${target2.emoji}</b>`;
+            } else {
+                ruleText = `Bawa <b>${target1.name} ${target1.emoji}</b> ATAU <b>${target2.name} ${target2.emoji}</b> <br><small style="color:#e74c3c;">(Hanya boleh bawa SATU saja dari keduanya!)</small>`;
+            }
+
+            let itemsHtml = this.g11Items.map(item => {
+                let isSel = this.g11Selected.includes(item.id);
+                return `
+                    <div onclick="app.toggleItem11('${item.id}')" style="display:flex; flex-direction:column; align-items:center; cursor:pointer; background:${isSel ? '#ffeaa7' : 'white'}; border:${isSel ? '4px solid #fdcb6e' : '4px solid #eee'}; border-radius:15px; padding:15px; transition:all 0.2s; transform:${isSel ? 'scale(1.1)' : 'scale(1)'};">
+                        <span style="font-size:3rem; margin-bottom:10px;">${item.emoji}</span>
+                        <span style="font-weight:bold; color:#555;">${item.name}</span>
+                        ${isSel ? '<span style="color:#27ae60; font-weight:bold; font-size:1.5rem; margin-top:5px;">✅</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px;">Buka Brankas Rahasia dengan Logika Boolean!</div>
+                <div style="background:#34495e; color:white; padding:20px; border-radius:15px; margin-bottom:30px; font-size:1.5rem; text-align:center; border:5px solid #2c3e50;">
+                    <div>PINTU BRANKAS TERBUKA JIKA:</div>
+                    <div style="color:#f1c40f; margin-top:10px; padding:10px; border:2px dashed #f1c40f; border-radius:10px; background:rgba(0,0,0,0.3); font-size:1.2rem;">
+                        ${ruleText}
+                    </div>
+                </div>
+                
+                <div class="subtitle" style="font-size:1.2rem; margin-bottom:15px;">Pilih barang yang ingin kamu bawa:</div>
+                <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap; margin-bottom:30px; padding:20px; background:#f8f9fa; border-radius:15px;">
+                    ${itemsHtml}
+                </div>
+
+                <button class="run-btn" onclick="app.checkWin11()" style="padding:15px 40px; font-size:1.5rem;">🔓 COBA BUKA PINTU</button>
+            `;
+        };
+
+        this.toggleItem11 = (id) => {
+            if (this.g11Selected.includes(id)) {
+                this.g11Selected = this.g11Selected.filter(x => x !== id);
+            } else {
+                this.g11Selected.push(id);
+            }
+            SFX.click();
+            this.renderUI11();
+        };
+
+        this.checkWin11 = () => {
+            let hasT1 = this.g11Selected.includes(target1.id);
+            let hasT2 = this.g11Selected.includes(target2.id);
+            let otherItems = this.g11Selected.filter(id => id !== target1.id && id !== target2.id).length;
+
+            let win = false;
+            // Jika bawa barang sampah, gagal
+            if (otherItems > 0) {
+                this.showNotif("❌ Kamu membawa barang yang tidak diperlukan! Brankas menolak.");
+                this.showFeedback(false);
+                return;
+            }
+
+            if (this.g11Mode === 'AND') {
+                win = hasT1 && hasT2;
+            } else {
+                // XOR: Harus bawa T1 atau T2, tidak boleh dua-duanya (agar lebih menantang untuk anak)
+                win = (hasT1 || hasT2) && !(hasT1 && hasT2);
+            }
+
+            this.showFeedback(win);
+        };
+
+        this.renderUI11();
+    },
+
+    // ==========================================
+    // GAME 12: MESIN SORTIR (Algoritma Sorting)
+    // ==========================================
+    initGame12() {
+        // Buat 4 angka acak dari 1 sampai 99
+        let nums = [];
+        while(nums.length < 4) {
+            let r = Math.floor(Math.random() * 99) + 1;
+            if(!nums.includes(r)) nums.push(r);
+        }
+        
+        // Pastikan tidak dalam keadaan sudah terurut
+        let sortedNums = [...nums].sort((a,b) => a-b);
+        if (JSON.stringify(nums) === JSON.stringify(sortedNums)) {
+            nums.reverse();
+        }
+
+        this.g12Nums = nums;
+        this.g12SelectedIdx = null;
+
+        this.renderUI12 = () => {
+            let boxesHtml = this.g12Nums.map((n, idx) => {
+                let isSel = this.g12SelectedIdx === idx;
+                return `
+                    <div onclick="app.selectBox12(${idx})" style="width:80px; height:80px; display:flex; justify-content:center; align-items:center; font-size:2.5rem; font-weight:bold; color:white; background:${isSel ? '#e74c3c' : '#3498db'}; border:${isSel ? '4px solid #c0392b' : '4px solid #2980b9'}; border-radius:15px; cursor:pointer; box-shadow:0 6px 0 ${isSel ? '#c0392b' : '#2980b9'}; transition:all 0.2s; transform:${isSel ? 'translateY(5px)' : 'translateY(0)'};">
+                        ${n}
+                    </div>
+                `;
+            }).join('');
+
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px;">Urutkan kotak dari yang TERKECIL ke TERBESAR!</div>
+                <div class="subtitle" style="font-size:1.1rem; color:#555; margin-bottom:30px;">Klik 2 kotak secara bergantian untuk menukar posisinya (Swap).</div>
+                
+                <div style="background:#ecf0f1; border-bottom:10px solid #bdc3c7; padding:40px 20px; border-radius:20px; margin-bottom:30px; display:flex; justify-content:center; gap:20px;">
+                    ${boxesHtml}
+                </div>
+
+                <button class="run-btn" onclick="app.checkWin12()" style="padding:15px 40px; font-size:1.5rem;">✅ KIRIM PAKET</button>
+            `;
+        };
+
+        this.selectBox12 = (idx) => {
+            SFX.click();
+            if (this.g12SelectedIdx === null) {
+                this.g12SelectedIdx = idx;
+            } else {
+                if (this.g12SelectedIdx === idx) {
+                    this.g12SelectedIdx = null; // deselect
+                } else {
+                    // Swap!
+                    let temp = this.g12Nums[this.g12SelectedIdx];
+                    this.g12Nums[this.g12SelectedIdx] = this.g12Nums[idx];
+                    this.g12Nums[idx] = temp;
+                    this.g12SelectedIdx = null;
+                    SFX.step(); // play a different sound for swap
+                }
+            }
+            this.renderUI12();
+        };
+
+        this.checkWin12 = () => {
+            let win = true;
+            for(let i=0; i<this.g12Nums.length - 1; i++) {
+                if (this.g12Nums[i] > this.g12Nums[i+1]) {
+                    win = false;
+                    break;
+                }
+            }
+            this.showFeedback(win);
+        };
+
+        this.renderUI12();
+    }
 
     // ==========================================
     // TOKO (SHOP)
