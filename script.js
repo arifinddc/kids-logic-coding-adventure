@@ -9,23 +9,42 @@ const SKIN_CATALOG = {
         { id: 'racing', emoji: '🏎️', name: 'Balap', price: 400 },
         { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 300 },
         { id: 'tractor', emoji: '🚜', name: 'Traktor', price: 200 },
+        { id: 'bus', emoji: '🚌', name: 'Bus', price: 200 },
+        { id: 'fire_truck', emoji: '🚒', name: 'Pemadam', price: 350 },
+        { id: 'scooter', emoji: '🛴', name: 'Skuter', price: 100 },
+        { id: 'rocket', emoji: '🚀', name: 'Roket', price: 600 },
+        { id: 'ufo', emoji: '🛸', name: 'UFO', price: 800 }
     ],
     target: [
         { id: 'house', emoji: '🏠', name: 'Rumah', price: 0 },
         { id: 'castle', emoji: '🏰', name: 'Kastil', price: 250 },
         { id: 'school', emoji: '🏫', name: 'Sekolah', price: 180 },
         { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 350 },
+        { id: 'tent', emoji: '⛺', name: 'Tenda', price: 100 },
+        { id: 'factory', emoji: '🏭', name: 'Pabrik', price: 200 },
+        { id: 'hospital', emoji: '🏥', name: 'Rumah Sakit', price: 300 },
+        { id: 'island', emoji: '🏝️', name: 'Pulau', price: 500 }
     ],
     robot: [
         { id: 'robot', emoji: '🤖', name: 'Robot', price: 0 },
         { id: 'alien', emoji: '👾', name: 'Alien', price: 300 },
         { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 500 },
         { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 400 },
+        { id: 'ninja', emoji: '🥷', name: 'Ninja', price: 350 },
+        { id: 'superhero', emoji: '🦸', name: 'Pahlawan', price: 600 },
+        { id: 'zombie', emoji: '🧟', name: 'Zombi', price: 250 },
+        { id: 'vampire', emoji: '🧛', name: 'Vampir', price: 300 },
+        { id: 'clown', emoji: '🤡', name: 'Badut', price: 150 }
     ],
     battery: [
         { id: 'battery', emoji: '🔋', name: 'Baterai', price: 0 },
         { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 150 },
         { id: 'diamond', emoji: '💎', name: 'Permata', price: 400 },
+        { id: 'burger', emoji: '🍔', name: 'Burger', price: 120 },
+        { id: 'cake', emoji: '🍰', name: 'Kue', price: 180 },
+        { id: 'gold', emoji: '💰', name: 'Uang Emas', price: 300 },
+        { id: 'wand', emoji: '🪄', name: 'Tongkat Ajaib', price: 500 },
+        { id: 'potion', emoji: '🧪', name: 'Ramuan', price: 250 }
     ],
     animals: [
         { id: 'cat', emoji: '🐱', name: 'Kucing', price: 100 },
@@ -33,6 +52,12 @@ const SKIN_CATALOG = {
         { id: 'panda', emoji: '🐼', name: 'Panda', price: 180 },
         { id: 'koala', emoji: '🐨', name: 'Koala', price: 180 },
         { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 150 },
+        { id: 'lion', emoji: '🦁', name: 'Singa', price: 250 },
+        { id: 'tiger', emoji: '🐯', name: 'Harimau', price: 250 },
+        { id: 'monkey', emoji: '🐵', name: 'Monyet', price: 120 },
+        { id: 'rabbit', emoji: '🐰', name: 'Kelinci', price: 100 },
+        { id: 'frog', emoji: '🐸', name: 'Katak', price: 90 },
+        { id: 'unicorn', emoji: '🦄', name: 'Unicorn', price: 700 }
     ]
 };
 // ==========================================
