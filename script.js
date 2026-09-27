@@ -534,7 +534,11 @@ const app = {
             const step = () => {
                 if(currentStep >= loopCount) {
                     isRunning = false;
-                    this.showFeedback(playerPos === targetPos);
+                    let isWin = playerPos === targetPos;
+                    this.showFeedback(isWin);
+                    if (!isWin) {
+                        setTimeout(() => { playerPos = 0; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
+                    }
                     return;
                 }
                 playerPos++;
@@ -542,6 +546,7 @@ const app = {
                 if (playerPos >= size) {
                     isRunning = false;
                     this.showFeedback(false); // nabrak ujung
+                    setTimeout(() => { playerPos = 0; document.getElementById('g6-grid').innerHTML = drawGrid(); }, 1500);
                     return;
                 }
 
@@ -567,6 +572,23 @@ const app = {
         };
         
         const renderUI = () => {
+            const getBg = (fruit) => {
+                let c = this.g7Rules[fruit];
+                if(c==='red') return '#e74c3c';
+                if(c==='yellow') return '#f1c40f';
+                if(c==='green') return '#2ecc71';
+                if(c==='blue') return '#3498db';
+                return 'white';
+            };
+            const getEmoji = (fruit) => {
+                let c = this.g7Rules[fruit];
+                if(c==='red') return '🟥';
+                if(c==='yellow') return '🟨';
+                if(c==='green') return '🟩';
+                if(c==='blue') return '🟦';
+                return '❓';
+            };
+
             this.el.gameContent.innerHTML = `
                 <div class="subtitle" style="margin-bottom:20px;">Buat aturan mesin sortir buah (IF-ELSE)!</div>
                 
@@ -576,7 +598,7 @@ const app = {
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
                         <span style="font-size:3rem;">🍎</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('🍎')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${this.g7Rules['🍎'] === 'red' ? '#e74c3c' : this.g7Rules['🍎'] === 'yellow' ? '#f1c40f' : 'white'};">${this.g7Rules['🍎'] === 'red' ? '🟥' : this.g7Rules['🍎'] === 'yellow' ? '🟨' : '❓'}</button>
+                        <button onclick="app.toggleRule7('🍎')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg('🍎')};">${getEmoji('🍎')}</button>
                     </div>
                     
                     <!-- Aturan 2 -->
@@ -584,7 +606,7 @@ const app = {
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
                         <span style="font-size:3rem;">🍌</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('🍌')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${this.g7Rules['🍌'] === 'red' ? '#e74c3c' : this.g7Rules['🍌'] === 'yellow' ? '#f1c40f' : 'white'};">${this.g7Rules['🍌'] === 'red' ? '🟥' : this.g7Rules['🍌'] === 'yellow' ? '🟨' : '❓'}</button>
+                        <button onclick="app.toggleRule7('🍌')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg('🍌')};">${getEmoji('🍌')}</button>
                     </div>
                 </div>
 
@@ -594,9 +616,10 @@ const app = {
         };
 
         this.toggleRule7 = (fruit) => {
-            if (this.g7Rules[fruit] === null) this.g7Rules[fruit] = 'red';
-            else if (this.g7Rules[fruit] === 'red') this.g7Rules[fruit] = 'yellow';
-            else this.g7Rules[fruit] = null;
+            const colors = [null, 'red', 'yellow', 'green', 'blue'];
+            let idx = colors.indexOf(this.g7Rules[fruit]);
+            idx = (idx + 1) % colors.length;
+            this.g7Rules[fruit] = colors[idx];
             renderUI();
         };
 
@@ -639,8 +662,8 @@ const app = {
         };
 
         const renderUI = (pX, pY) => {
-            const cmds = ['U', 'D', 'L', 'R'];
-            const icons = {'U':'⬆️', 'D':'⬇️', 'L':'⬅️', 'R':'➡️'};
+            const cmds = ['U', 'D', 'L', 'R', '_'];
+            const icons = {'U':'⬆️', 'D':'⬇️', 'L':'⬅️', 'R':'➡️', '_':'🗑️'};
             
             let seqHtml = this.g8Seq.map((c, idx) => `
                 <button onclick="app.toggleBug8(${idx})" style="font-size:2rem; width:50px; height:50px; border-radius:10px; border:3px solid #e74c3c; cursor:pointer; background:white;">${icons[c]}</button>
@@ -648,7 +671,7 @@ const app = {
 
             this.el.gameContent.innerHTML = `
                 <div class="subtitle" style="margin-bottom:10px;">Oh tidak! Ada BUG (kutu) di kode Robot!</div>
-                <div class="subtitle" style="margin-bottom:20px; font-size:1.1rem; color:#555;">Klik panah yang salah untuk memperbaikinya agar Robot sampai ke Baterai.</div>
+                <div class="subtitle" style="margin-bottom:20px; font-size:1.1rem; color:#555;">Klik panah yang salah untuk memutarnya. Gunakan 🗑️ untuk mengosongkan langkah.</div>
                 
                 <div id="g8-grid-container">${drawGrid(pX, pY)}</div>
                 
@@ -662,7 +685,7 @@ const app = {
 
         this.toggleBug8 = (idx) => {
             if(isRunning) return;
-            const cycle = {'U':'R', 'R':'D', 'D':'L', 'L':'U'};
+            const cycle = {'R':'D', 'D':'L', 'L':'U', 'U':'_', '_':'R'};
             this.g8Seq[idx] = cycle[this.g8Seq[idx]];
             renderUI(startPos.x, startPos.y);
         };
@@ -677,15 +700,22 @@ const app = {
             const executeStep = () => {
                 if (step >= this.g8Seq.length) {
                     isRunning = false;
-                    if (pX === targetPos.x && pY === targetPos.y) {
-                        setTimeout(() => this.showFeedback(true), 300);
-                    } else {
-                        this.showFeedback(false);
+                    let isWin = (pX === targetPos.x && pY === targetPos.y);
+                    this.showFeedback(isWin);
+                    if (!isWin) {
+                        setTimeout(() => { document.getElementById('g8-grid-container').innerHTML = drawGrid(startPos.x, startPos.y); }, 1500);
                     }
                     return;
                 }
 
                 let cmd = this.g8Seq[step];
+                step++;
+                
+                if (cmd === '_') {
+                    setTimeout(executeStep, 200); // skip empty
+                    return;
+                }
+
                 let nextX = pX;
                 let nextY = pY;
 
@@ -697,6 +727,7 @@ const app = {
                 if (nextX < 0 || nextX >= size || nextY < 0 || nextY >= size) {
                     isRunning = false;
                     this.showFeedback(false);
+                    setTimeout(() => { document.getElementById('g8-grid-container').innerHTML = drawGrid(startPos.x, startPos.y); }, 1500);
                     return;
                 }
 
@@ -704,7 +735,6 @@ const app = {
                 pY = nextY;
                 
                 document.getElementById('g8-grid-container').innerHTML = drawGrid(pX, pY);
-                step++;
                 setTimeout(executeStep, 500);
             };
 
@@ -736,9 +766,12 @@ const app = {
 
         const renderCode = () => {
             return this.g9Target.map((row, r) => `
-                <div style="font-size:1.5rem; letter-spacing:5px; text-align:left;">
-                    <span style="font-size:1.2rem; color:#888;">Baris ${r+1}: </span> 
-                    ${row.map(val => val === 1 ? '⬛' : '⬜').join('')}
+                <div style="display:flex; align-items:center; gap:5px; margin-bottom:10px;">
+                    <span style="font-size:1.2rem; color:#888; font-weight:bold; margin-right:10px; min-width:80px; text-align:left;">Baris ${r+1}: </span> 
+                    ${row.map(val => {
+                        let isBlack = val === 1;
+                        return `<div style="width:25px; height:25px; background:${isBlack ? '#2c3e50' : 'white'}; border:2px solid #ccc; border-radius:5px;"></div>`;
+                    }).join('')}
                 </div>
             `).join('');
         };
