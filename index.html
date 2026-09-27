@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ff6b6b">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.jpg">
     <title>Kids Logic & Coding Adventure</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,8 +52,8 @@
                     <span class="text">8. Tangkap Kutu (Bug)</span>
                 </button>
                 <button class="menu-btn game9" onclick="app.startGame(9)">
-                    <span class="emoji">👾</span>
-                    <span class="text">9. Koding Piksel</span>
+                    <span class="emoji">⚙️</span>
+                    <span class="text">9. Koding Fungsi</span>
                 </button>
             </div>
         </div>
@@ -77,8 +80,12 @@
         </div>
     </div>
 
-    <!-- Confetti Script -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
 </body>
 </html>

@@ -1,0 +1,16 @@
+{
+  "name": "Kids Coding Adventure",
+  "short_name": "Kids Coding",
+  "start_url": "./",
+  "display": "fullscreen",
+  "background_color": "#f0f8ff",
+  "theme_color": "#ff6b6b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg"
+    }
+  ]
+}

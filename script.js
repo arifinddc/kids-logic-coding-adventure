@@ -562,82 +562,79 @@ const app = {
     },
 
     // ==========================================
-    // GAME 7: KONDISI (If-Else)
+    // GAME 7: KONDISI CUACA (If-Else)
     // ==========================================
     initGame7() {
-        const fruitList = ['🍎', '🍌', '🍓', '🍇', '🍉', '🥑'];
-        const colorList = ['red', 'yellow', 'green', 'blue'];
-        const colorName = {'red':'Merah 🟥', 'yellow':'Kuning 🟨', 'green':'Hijau 🟩', 'blue':'Biru 🟦'};
-        
-        let shuffFruits = [...fruitList].sort(()=>0.5 - Math.random());
-        let shuffColors = [...colorList].sort(()=>0.5 - Math.random());
+        const weatherTypes = [
+            { id: 'hujan', emoji: '🌧️', name: 'Hujan' },
+            { id: 'cerah', emoji: '☀️', name: 'Cerah' },
+            { id: 'salju', emoji: '❄️', name: 'Salju' }
+        ];
+        const gearTypes = [
+            { id: 'payung', emoji: '☂️' },
+            { id: 'kacamata', emoji: '🕶️' },
+            { id: 'jaket', emoji: '🧥' }
+        ];
 
-        this.f1 = shuffFruits[0];
-        this.f2 = shuffFruits[1];
-        this.c1 = shuffColors[0];
-        this.c2 = shuffColors[1];
+        let w1 = weatherTypes[0], w2 = weatherTypes[1];
+        let g1 = gearTypes[0], g2 = gearTypes[1];
+        
+        // Acak
+        if(Math.random() > 0.5) {
+            w1 = weatherTypes[1]; w2 = weatherTypes[2];
+            g1 = gearTypes[1]; g2 = gearTypes[2];
+        }
 
         this.g7Rules = {};
-        this.g7Rules[this.f1] = null;
-        this.g7Rules[this.f2] = null;
+        this.g7Rules[w1.id] = null;
+        this.g7Rules[w2.id] = null;
         
         const renderUI = () => {
-            const getBg = (c) => {
-                if(c==='red') return '#e74c3c';
-                if(c==='yellow') return '#f1c40f';
-                if(c==='green') return '#2ecc71';
-                if(c==='blue') return '#3498db';
-                return 'white';
-            };
-            const getEmoji = (c) => {
-                if(c==='red') return '🟥';
-                if(c==='yellow') return '🟨';
-                if(c==='green') return '🟩';
-                if(c==='blue') return '🟦';
-                return '❓';
+            const getGear = (wId) => {
+                let g = gearTypes.find(x => x.id === this.g7Rules[wId]);
+                return g ? g.emoji : '❓';
             };
 
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:10px;">Buat aturan mesin sortir buah (IF-ELSE)!</div>
-                <div style="background:#fff3cd; padding:15px; border-radius:10px; border:2px dashed #ffeeba; margin-bottom:20px; font-size:1.2rem; color:#856404; width:fit-content; margin-left:auto; margin-right:auto;">
-                    <b>TUGAS HARI INI:</b><br>
-                    Buah ${this.f1} harus masuk ke kotak <b>${colorName[this.c1]}</b>.<br>
-                    Buah ${this.f2} harus masuk ke kotak <b>${colorName[this.c2]}</b>.
+                <div class="subtitle" style="margin-bottom:10px;">Siapkan perlengkapan sesuai cuaca (IF-ELSE)!</div>
+                <div style="background:#e8f4f8; padding:15px; border-radius:10px; border:2px dashed #b8daff; margin-bottom:20px; font-size:1.2rem; color:#004085; text-align:center;">
+                    <b>ATURAN HARI INI:</b><br>
+                    JIKA cuaca <b>${w1.name} ${w1.emoji}</b> pakai <b>${g1.emoji}</b>.<br>
+                    JIKA cuaca <b>${w2.name} ${w2.emoji}</b> pakai <b>${g2.emoji}</b>.
                 </div>
                 
                 <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-bottom:30px;">
                     <!-- Aturan 1 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">${this.f1}</span>
+                        <span style="font-size:3rem;">${w1.emoji}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('${this.f1}')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg(this.g7Rules[this.f1])};">${getEmoji(this.g7Rules[this.f1])}</button>
+                        <button onclick="app.toggleRule7('${w1.id}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(w1.id)}</button>
                     </div>
                     
                     <!-- Aturan 2 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">${this.f2}</span>
+                        <span style="font-size:3rem;">${w2.emoji}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('${this.f2}')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg(this.g7Rules[this.f2])};">${getEmoji(this.g7Rules[this.f2])}</button>
+                        <button onclick="app.toggleRule7('${w2.id}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(w2.id)}</button>
                     </div>
                 </div>
 
-                <div class="subtitle" style="font-size:1.2rem; color:#7f8c8d; margin-bottom:20px;">*Klik kotak ❓ untuk mengubah pilihan keranjang</div>
                 <button class="run-btn" onclick="app.checkWin7()" style="padding:15px 40px; font-size:1.5rem;">✅ SIMPAN ATURAN</button>
             `;
         };
 
-        this.toggleRule7 = (fruit) => {
-            const colors = [null, 'red', 'yellow', 'green', 'blue'];
-            let idx = colors.indexOf(this.g7Rules[fruit]);
-            idx = (idx + 1) % colors.length;
-            this.g7Rules[fruit] = colors[idx];
+        this.toggleRule7 = (wId) => {
+            const options = [null, 'payung', 'kacamata', 'jaket'];
+            let idx = options.indexOf(this.g7Rules[wId]);
+            idx = (idx + 1) % options.length;
+            this.g7Rules[wId] = options[idx];
             renderUI();
         };
 
         this.checkWin7 = () => {
-            if(this.g7Rules[this.f1] === this.c1 && this.g7Rules[this.f2] === this.c2) {
+            if(this.g7Rules[w1.id] === g1.id && this.g7Rules[w2.id] === g2.id) {
                 this.showFeedback(true);
             } else {
                 this.showFeedback(false);
@@ -758,91 +755,51 @@ const app = {
     },
 
     // ==========================================
-    // GAME 9: KODING PIKSEL (Binary/Grid Art)
+    // GAME 9: KODING FUNGSI (Functions)
     // ==========================================
     initGame9() {
-        const patterns = [
-            [ [1,0,1], [0,1,0], [1,0,1] ], // X
-            [ [0,1,0], [1,1,1], [0,1,0] ], // +
-            [ [1,1,1], [1,0,1], [1,1,1] ], // O
-            [ [1,0,1], [1,1,1], [0,1,0] ], // Heart/Triangle
-            [ [1,1,0], [0,1,1], [1,1,0] ], // Arrow
-            [ [1,0,0], [1,1,0], [1,0,0] ]  // Arrow Left
+        const tasks = [
+            { name: 'PanenApel', steps: ['➡️', '⬆️', '🍎'], desc: 'Maju, Naik, lalu Petik Apel' },
+            { name: 'BeriMakanKucing', steps: ['⬅️', '⬇️', '🐟'], desc: 'Kiri, Turun, lalu Beri Ikan' },
+            { name: 'SiramBunga', steps: ['➡️', '➡️', '💧'], desc: 'Maju, Maju, lalu Siram Air' }
         ];
         
-        this.g9Target = patterns[Math.floor(Math.random() * patterns.length)];
-
-        this.g9Grid = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ];
-
-        const renderCode = () => {
-            return this.g9Target.map((row, r) => `
-                <div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">
-                    <span style="font-size:1.2rem; color:#888; font-weight:bold; margin-right:10px; min-width:80px; text-align:left;">Baris ${r+1}: </span> 
-                    <div style="display:flex; gap:2px; background:#ddd; padding:3px; border-radius:6px;">
-                        ${row.map(val => {
-                            let isBlack = val === 1;
-                            return `<div style="width:22px; height:22px; background:${isBlack ? '#2c3e50' : 'white'}; border-radius:3px;"></div>`;
-                        }).join('')}
-                    </div>
-                </div>
-            `).join('');
-        };
-
-        this.renderPixelGrid = () => {
-            let html = `<div style="display:grid; grid-template-columns:repeat(3, 80px); gap:5px; background:#ddd; padding:5px; border-radius:10px;">`;
-            for(let r=0; r<3; r++) {
-                for(let c=0; c<3; c++) {
-                    let isBlack = this.g9Grid[r][c] === 1;
-                    html += `<div onclick="app.togglePixel9(${r},${c})" style="width:80px; height:80px; background:${isBlack ? '#2c3e50' : 'white'}; cursor:pointer; border-radius:5px; transition:all 0.2s;"></div>`;
-                }
-            }
-            html += `</div>`;
-            return html;
-        };
-
-        const drawUI = () => {
+        let t = tasks[Math.floor(Math.random() * tasks.length)];
+        this.g9Seq = [null, null, null];
+        
+        const renderUI = () => {
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:20px;">Warnai kotak sesuai kode rahasia di samping!</div>
+                <div class="subtitle" style="margin-bottom:10px;">Buat Fungsi (Resep) Baru!</div>
+                <div style="background:#fff3cd; padding:15px; border-radius:10px; border:2px dashed #ffeeba; margin-bottom:20px; font-size:1.2rem; color:#856404; text-align:center;">
+                    Kamu perlu membuat fungsi <b>${t.name}()</b>.<br>
+                    Agar berhasil, robot harus: <b>${t.desc}</b>
+                </div>
                 
-                <div style="display:flex; justify-content:center; align-items:center; gap:40px; margin-bottom:30px; flex-wrap:wrap;">
-                    <!-- Code Guide -->
-                    <div style="background:#f8f9fa; padding:20px; border-radius:15px; border:2px dashed #ccc;">
-                        <div style="font-weight:bold; margin-bottom:10px; border-bottom:2px solid #ddd; padding-bottom:5px;">KODE GAMBAR:</div>
-                        ${renderCode()}
-                    </div>
-                    
-                    <!-- Drawing Grid -->
-                    <div id="g9-drawing-board">
-                        ${this.renderPixelGrid()}
-                    </div>
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:30px; background:#f8f9fa; padding:20px; border-radius:15px; border:2px solid #ddd; flex-wrap:wrap; align-items:center;">
+                    <div style="font-size:1.5rem; font-weight:bold; margin-right:10px; color:var(--primary);">${t.name}() = </div>
+                    ${[0,1,2].map(i => `
+                        <button onclick="app.toggleFunc9(${i})" style="font-size:2.5rem; width:70px; height:70px; border-radius:10px; border:3px dashed #ccc; cursor:pointer; background:white;">${this.g9Seq[i] || '❓'}</button>
+                    `).join('')}
                 </div>
 
-                <button class="run-btn" onclick="app.checkWin9()" style="padding:15px 40px; font-size:1.5rem;">✅ SELESAI MENGGAMBAR</button>
+                <div class="subtitle" style="font-size:1rem; color:#555; margin-bottom:20px;">Klik ❓ untuk memilih perintah!</div>
+                <button class="run-btn" onclick="app.checkWin9()" style="padding:15px 40px; font-size:1.5rem;">⚙️ SIMPAN FUNGSI</button>
             `;
         };
 
-        this.togglePixel9 = (r, c) => {
-            this.g9Grid[r][c] = this.g9Grid[r][c] === 0 ? 1 : 0;
-            document.getElementById('g9-drawing-board').innerHTML = this.renderPixelGrid();
+        this.toggleFunc9 = (i) => {
+            const opts = [null, '➡️', '⬅️', '⬆️', '⬇️', '🍎', '🐟', '💧'];
+            let idx = opts.indexOf(this.g9Seq[i]);
+            idx = (idx + 1) % opts.length;
+            this.g9Seq[i] = opts[idx];
+            renderUI();
         };
 
         this.checkWin9 = () => {
-            let isWin = true;
-            for(let r=0; r<3; r++) {
-                for(let c=0; c<3; c++) {
-                    if(this.g9Grid[r][c] !== this.g9Target[r][c]) {
-                        isWin = false;
-                        break;
-                    }
-                }
-            }
-            this.showFeedback(isWin);
+            let win = this.g9Seq[0] === t.steps[0] && this.g9Seq[1] === t.steps[1] && this.g9Seq[2] === t.steps[2];
+            this.showFeedback(win);
         };
 
-        drawUI();
+        renderUI();
     }
 };
