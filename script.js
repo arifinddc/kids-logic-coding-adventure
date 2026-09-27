@@ -5,58 +5,77 @@ const SKIN_CATALOG = {
     player: [
         { id: 'car', emoji: '🚗', name: 'Mobil', price: 0 },
         { id: 'taxi', emoji: '🚕', name: 'Taksi', price: 150 },
-        { id: 'police', emoji: '🚓', name: 'Polisi', price: 250 },
-        { id: 'racing', emoji: '🏎️', name: 'Balap', price: 400 },
-        { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 300 },
+        { id: 'scooter', emoji: '🛴', name: 'Skuter', price: 100 },
+        { id: 'bicycle', emoji: '🚲', name: 'Sepeda', price: 100 },
         { id: 'tractor', emoji: '🚜', name: 'Traktor', price: 200 },
         { id: 'bus', emoji: '🚌', name: 'Bus', price: 200 },
+        { id: 'police', emoji: '🚓', name: 'Polisi', price: 250 },
+        { id: 'ambulance', emoji: '🚑', name: 'Ambulans', price: 300 },
         { id: 'fire_truck', emoji: '🚒', name: 'Pemadam', price: 350 },
-        { id: 'scooter', emoji: '🛴', name: 'Skuter', price: 100 },
+        { id: 'racing', emoji: '🏎️', name: 'Balap', price: 400 },
+        { id: 'train', emoji: '🚂', name: 'Kereta', price: 350 },
+        { id: 'helicopter', emoji: '🚁', name: 'Helikopter', price: 450 },
+        { id: 'ship', emoji: '🚢', name: 'Kapal', price: 450 },
         { id: 'rocket', emoji: '🚀', name: 'Roket', price: 600 },
         { id: 'ufo', emoji: '🛸', name: 'UFO', price: 800 }
     ],
     target: [
         { id: 'house', emoji: '🏠', name: 'Rumah', price: 0 },
-        { id: 'castle', emoji: '🏰', name: 'Kastil', price: 250 },
-        { id: 'school', emoji: '🏫', name: 'Sekolah', price: 180 },
-        { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 350 },
         { id: 'tent', emoji: '⛺', name: 'Tenda', price: 100 },
+        { id: 'school', emoji: '🏫', name: 'Sekolah', price: 180 },
         { id: 'factory', emoji: '🏭', name: 'Pabrik', price: 200 },
+        { id: 'bank', emoji: '🏦', name: 'Bank', price: 200 },
+        { id: 'castle', emoji: '🏰', name: 'Kastil', price: 250 },
         { id: 'hospital', emoji: '🏥', name: 'Rumah Sakit', price: 300 },
+        { id: 'stadium', emoji: '🏟️', name: 'Stadion', price: 350 },
+        { id: 'tower', emoji: '🗼', name: 'Menara', price: 350 },
+        { id: 'shrine', emoji: '⛩️', name: 'Kuil', price: 450 },
         { id: 'island', emoji: '🏝️', name: 'Pulau', price: 500 }
     ],
     robot: [
         { id: 'robot', emoji: '🤖', name: 'Robot', price: 0 },
-        { id: 'alien', emoji: '👾', name: 'Alien', price: 300 },
-        { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 500 },
-        { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 400 },
-        { id: 'ninja', emoji: '🥷', name: 'Ninja', price: 350 },
-        { id: 'superhero', emoji: '🦸', name: 'Pahlawan', price: 600 },
+        { id: 'clown', emoji: '🤡', name: 'Badut', price: 150 },
+        { id: 'pumpkin', emoji: '🎃', name: 'Labu', price: 180 },
         { id: 'zombie', emoji: '🧟', name: 'Zombi', price: 250 },
+        { id: 'ghost', emoji: '👻', name: 'Hantu', price: 250 },
         { id: 'vampire', emoji: '🧛', name: 'Vampir', price: 300 },
-        { id: 'clown', emoji: '🤡', name: 'Badut', price: 150 }
+        { id: 'alien', emoji: '👾', name: 'Alien', price: 300 },
+        { id: 'ninja', emoji: '🥷', name: 'Ninja', price: 350 },
+        { id: 'wizard', emoji: '🧙‍♂️', name: 'Penyihir', price: 400 },
+        { id: 'astronaut', emoji: '🧑‍🚀', name: 'Astronot', price: 500 },
+        { id: 'superhero', emoji: '🦸', name: 'Pahlawan', price: 600 },
+        { id: 'mecha', emoji: '🦾', name: 'Cyborg', price: 600 }
     ],
     battery: [
         { id: 'battery', emoji: '🔋', name: 'Baterai', price: 0 },
-        { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 150 },
-        { id: 'diamond', emoji: '💎', name: 'Permata', price: 400 },
         { id: 'burger', emoji: '🍔', name: 'Burger', price: 120 },
+        { id: 'pizza', emoji: '🍕', name: 'Pizza', price: 150 },
         { id: 'cake', emoji: '🍰', name: 'Kue', price: 180 },
+        { id: 'potion', emoji: '🧪', name: 'Ramuan', price: 250 },
         { id: 'gold', emoji: '💰', name: 'Uang Emas', price: 300 },
-        { id: 'wand', emoji: '🪄', name: 'Tongkat Ajaib', price: 500 },
-        { id: 'potion', emoji: '🧪', name: 'Ramuan', price: 250 }
+        { id: 'gift', emoji: '🎁', name: 'Kado', price: 350 },
+        { id: 'diamond', emoji: '💎', name: 'Permata', price: 400 },
+        { id: 'trophy', emoji: '🏆', name: 'Piala', price: 450 },
+        { id: 'wand', emoji: '🪄', name: 'Tongkat Ajaib', price: 500 }
     ],
     animals: [
+        { id: 'frog', emoji: '🐸', name: 'Katak', price: 90 },
         { id: 'cat', emoji: '🐱', name: 'Kucing', price: 100 },
         { id: 'dog', emoji: '🐶', name: 'Anjing', price: 100 },
+        { id: 'rabbit', emoji: '🐰', name: 'Kelinci', price: 100 },
+        { id: 'mouse', emoji: '🐭', name: 'Tikus', price: 100 },
+        { id: 'monkey', emoji: '🐵', name: 'Monyet', price: 120 },
+        { id: 'pig', emoji: '🐷', name: 'Babi', price: 120 },
+        { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 150 },
         { id: 'panda', emoji: '🐼', name: 'Panda', price: 180 },
         { id: 'koala', emoji: '🐨', name: 'Koala', price: 180 },
-        { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 150 },
+        { id: 'cow', emoji: '🐮', name: 'Sapi', price: 200 },
         { id: 'lion', emoji: '🦁', name: 'Singa', price: 250 },
         { id: 'tiger', emoji: '🐯', name: 'Harimau', price: 250 },
-        { id: 'monkey', emoji: '🐵', name: 'Monyet', price: 120 },
-        { id: 'rabbit', emoji: '🐰', name: 'Kelinci', price: 100 },
-        { id: 'frog', emoji: '🐸', name: 'Katak', price: 90 },
+        { id: 'bear', emoji: '🐻', name: 'Beruang', price: 250 },
+        { id: 'fox', emoji: '🦊', name: 'Rubah', price: 300 },
+        { id: 'trex', emoji: '🦖', name: 'T-Rex', price: 450 },
+        { id: 'dragon', emoji: '🐉', name: 'Naga', price: 600 },
         { id: 'unicorn', emoji: '🦄', name: 'Unicorn', price: 700 }
     ]
 };
@@ -1752,6 +1771,11 @@ const app = {
                 const owned = data.ownedSkins[cat.key].includes(item.id);
                 const isActive = data.activeSkin[cat.key] === item.id;
                 let cardClass = 'skin-card';
+                
+                if (item.price <= 200) cardClass += ' rarity-common';
+                else if (item.price <= 400) cardClass += ' rarity-rare';
+                else cardClass += ' rarity-epic';
+
                 if (owned) cardClass += ' owned';
                 if (isActive) cardClass += ' active-skin';
                 if (!owned) cardClass += ' locked';
@@ -1794,16 +1818,20 @@ const app = {
             return;
         }
 
-        let unowned = [];
+        let common = [], rare = [], epic = [];
         for (const catKey in SKIN_CATALOG) {
             SKIN_CATALOG[catKey].forEach(item => {
                 if (!data.ownedSkins[catKey].includes(item.id)) {
-                    unowned.push({ category: catKey, item: item });
+                    const obj = { category: catKey, item: item };
+                    if (item.price <= 200) common.push(obj);
+                    else if (item.price <= 400) rare.push(obj);
+                    else epic.push(obj);
                 }
             });
         }
 
-        if (unowned.length === 0) {
+        const totalUnowned = common.length + rare.length + epic.length;
+        if (totalUnowned === 0) {
             this.showNotif("🎉 Luar biasa! Kamu sudah memiliki SEMUA karakter di toko!");
             return;
         }
@@ -1824,13 +1852,43 @@ const app = {
             egg.style.display = 'none';
             result.style.display = 'inline-block';
             
-            const win = unowned[Math.floor(Math.random() * unowned.length)];
+            // Weighted RNG (60% Common, 30% Rare, 10% Epic)
+            let winPool = [];
+            let rarityName = 'Common';
+            let color = 'white';
+            const roll = Math.random() * 100;
+            
+            if (roll <= 60 && common.length > 0) {
+                winPool = common; rarityName = 'Common'; color = '#bdc3c7';
+            } else if (roll <= 90 && rare.length > 0) {
+                winPool = rare; rarityName = 'Rare'; color = '#3498db';
+            } else if (epic.length > 0) {
+                winPool = epic; rarityName = 'Epic'; color = '#f1c40f';
+            } else if (rare.length > 0) {
+                winPool = rare; rarityName = 'Rare'; color = '#3498db'; // Fallback
+            } else {
+                winPool = common; rarityName = 'Common'; color = '#bdc3c7'; // Fallback
+            }
+            
+            const win = winPool[Math.floor(Math.random() * winPool.length)];
             data.ownedSkins[win.category].push(win.item.id);
             saveData(data);
             
-            result.innerHTML = `${win.item.emoji}<br><span style="font-size:1.5rem; display:block; margin-top:10px; color:white; text-shadow:1px 1px 2px #333;">Dapat: ${win.item.name}</span>`;
-            SFX.buy();
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            if (rarityName === 'Epic') {
+                SFX.reward(); // Extra special sound!
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 500);
+                confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 }, colors: ['#f1c40f', '#f39c12', '#e67e22'] });
+            } else {
+                SFX.buy();
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            }
+            
+            result.innerHTML = `
+                <div style="font-size:1.2rem; color:${color}; font-weight:bold; margin-bottom:5px;">[${rarityName}]</div>
+                ${win.item.emoji}
+                <div style="font-size:1.5rem; display:block; margin-top:10px; color:white; text-shadow:1px 1px 2px #333;">Dapat: ${win.item.name}</div>
+            `;
 
             setTimeout(() => {
                 this._isRollingGacha = false;

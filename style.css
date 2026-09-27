@@ -672,3 +672,20 @@ h2#game-title {
     display: none;
     animation: zoomIn 0.5s ease;
 }
+
+/* Rarity Tiers */
+.rarity-common {
+    border-bottom: 5px solid #bdc3c7;
+}
+.rarity-rare {
+    border-bottom: 5px solid #3498db;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+.rarity-epic {
+    border-bottom: 5px solid #f1c40f;
+    box-shadow: 0 4px 20px rgba(241, 196, 15, 0.6);
+    background: linear-gradient(135deg, white, #fff9e6);
+}
+
+.rarity-rare .skin-name { color: #2980b9; font-weight: bold; }
+.rarity-epic .skin-name { color: #d35400; font-weight: bold; }
