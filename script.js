@@ -199,6 +199,51 @@ const app = {
     currentGame: null,
     score: 0,
     currentLevel: 1,
+    
+    // BGM System
+    bgmPlaying: false,
+    bgmTimeout: null,
+    
+    toggleBGM() {
+        this.bgmPlaying = !this.bgmPlaying;
+        document.getElementById('bgm-toggle').innerText = this.bgmPlaying ? '🔊' : '🔇';
+        if (this.bgmPlaying) {
+            this.playBGM();
+        } else {
+            clearTimeout(this.bgmTimeout);
+        }
+    },
+    
+    playBGM() {
+        if (!this.bgmPlaying) return;
+        const ctx = SFX._getCtx();
+        // Happy 8-bit melody loop
+        const notes = [
+            523.25, 659.25, 783.99, 1046.50,
+            783.99, 659.25, 523.25, 392.00,
+            440.00, 523.25, 659.25, 880.00,
+            659.25, 523.25, 440.00, 349.23
+        ];
+        
+        let noteIdx = this._bgmIdx || 0;
+        const freq = notes[noteIdx];
+        this._bgmIdx = (noteIdx + 1) % notes.length;
+        
+        try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square'; // 8-bit sound
+            osc.frequency.value = freq;
+            gain.gain.value = 0.015; // Very soft volume
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.25);
+        } catch(e) {}
+        
+        this.bgmTimeout = setTimeout(() => this.playBGM(), 300);
+    },
 
     // DOM Elements
     el: {

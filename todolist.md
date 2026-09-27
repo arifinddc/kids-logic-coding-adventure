@@ -10,7 +10,6 @@ Berikut adalah daftar fitur dan pengembangan masa depan untuk proyek ini:
 
 ## 🚀 Fitur Aktif / Dalam Pembahasan
 - [ ] Menyempurnakan Gacha dengan sistem rarity/tier (Common, Rare, Epic).
-- [ ] Sound Effect / Musik Latar Belakang tambahan.
 
 ## ✅ Selesai
 - [x] Perombakan RNG dan Variasi (Procedural Generation) untuk 12 Mini Games.
@@ -18,3 +17,4 @@ Berikut adalah daftar fitur dan pengembangan masa depan untuk proyek ini:
 - [x] Skrip auto-update dokumentasi `sync-docs.js`.
 - [x] Sistem Ekonomi & Toko Karakter (Gacha Misteri & Coin Balancing).
 - [x] Fitur Native PWA (Pop-up Install, Haptic Feedback/Getar, Screen Orientation Lock, Anti-Zoom).
+- [x] Sistem Suara/BGM Chiptune (8-bit procedurally generated BGM).
