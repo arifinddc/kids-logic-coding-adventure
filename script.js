@@ -565,23 +565,31 @@ const app = {
     // GAME 7: KONDISI (If-Else)
     // ==========================================
     initGame7() {
-        // Aturan: Apel -> Merah, Pisang -> Kuning
-        this.g7Rules = {
-            '🍎': null,
-            '🍌': null
-        };
+        const fruitList = ['🍎', '🍌', '🍓', '🍇', '🍉', '🥑'];
+        const colorList = ['red', 'yellow', 'green', 'blue'];
+        const colorName = {'red':'Merah 🟥', 'yellow':'Kuning 🟨', 'green':'Hijau 🟩', 'blue':'Biru 🟦'};
+        
+        let shuffFruits = [...fruitList].sort(()=>0.5 - Math.random());
+        let shuffColors = [...colorList].sort(()=>0.5 - Math.random());
+
+        this.f1 = shuffFruits[0];
+        this.f2 = shuffFruits[1];
+        this.c1 = shuffColors[0];
+        this.c2 = shuffColors[1];
+
+        this.g7Rules = {};
+        this.g7Rules[this.f1] = null;
+        this.g7Rules[this.f2] = null;
         
         const renderUI = () => {
-            const getBg = (fruit) => {
-                let c = this.g7Rules[fruit];
+            const getBg = (c) => {
                 if(c==='red') return '#e74c3c';
                 if(c==='yellow') return '#f1c40f';
                 if(c==='green') return '#2ecc71';
                 if(c==='blue') return '#3498db';
                 return 'white';
             };
-            const getEmoji = (fruit) => {
-                let c = this.g7Rules[fruit];
+            const getEmoji = (c) => {
                 if(c==='red') return '🟥';
                 if(c==='yellow') return '🟨';
                 if(c==='green') return '🟩';
@@ -590,23 +598,28 @@ const app = {
             };
 
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:20px;">Buat aturan mesin sortir buah (IF-ELSE)!</div>
+                <div class="subtitle" style="margin-bottom:10px;">Buat aturan mesin sortir buah (IF-ELSE)!</div>
+                <div style="background:#fff3cd; padding:15px; border-radius:10px; border:2px dashed #ffeeba; margin-bottom:20px; font-size:1.2rem; color:#856404; width:fit-content; margin-left:auto; margin-right:auto;">
+                    <b>TUGAS HARI INI:</b><br>
+                    Buah ${this.f1} harus masuk ke kotak <b>${colorName[this.c1]}</b>.<br>
+                    Buah ${this.f2} harus masuk ke kotak <b>${colorName[this.c2]}</b>.
+                </div>
                 
                 <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-bottom:30px;">
                     <!-- Aturan 1 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">🍎</span>
+                        <span style="font-size:3rem;">${this.f1}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('🍎')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg('🍎')};">${getEmoji('🍎')}</button>
+                        <button onclick="app.toggleRule7('${this.f1}')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg(this.g7Rules[this.f1])};">${getEmoji(this.g7Rules[this.f1])}</button>
                     </div>
                     
                     <!-- Aturan 2 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">🍌</span>
+                        <span style="font-size:3rem;">${this.f2}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('🍌')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg('🍌')};">${getEmoji('🍌')}</button>
+                        <button onclick="app.toggleRule7('${this.f2}')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${getBg(this.g7Rules[this.f2])};">${getEmoji(this.g7Rules[this.f2])}</button>
                     </div>
                 </div>
 
@@ -624,7 +637,7 @@ const app = {
         };
 
         this.checkWin7 = () => {
-            if(this.g7Rules['🍎'] === 'red' && this.g7Rules['🍌'] === 'yellow') {
+            if(this.g7Rules[this.f1] === this.c1 && this.g7Rules[this.f2] === this.c2) {
                 this.showFeedback(true);
             } else {
                 this.showFeedback(false);
@@ -748,15 +761,16 @@ const app = {
     // GAME 9: KODING PIKSEL (Binary/Grid Art)
     // ==========================================
     initGame9() {
-        // Target shape: a simple + sign
-        // 0 1 0
-        // 1 1 1
-        // 0 1 0
-        this.g9Target = [
-            [0, 1, 0],
-            [1, 1, 1],
-            [0, 1, 0]
+        const patterns = [
+            [ [1,0,1], [0,1,0], [1,0,1] ], // X
+            [ [0,1,0], [1,1,1], [0,1,0] ], // +
+            [ [1,1,1], [1,0,1], [1,1,1] ], // O
+            [ [1,0,1], [1,1,1], [0,1,0] ], // Heart/Triangle
+            [ [1,1,0], [0,1,1], [1,1,0] ], // Arrow
+            [ [1,0,0], [1,1,0], [1,0,0] ]  // Arrow Left
         ];
+        
+        this.g9Target = patterns[Math.floor(Math.random() * patterns.length)];
 
         this.g9Grid = [
             [0, 0, 0],
@@ -766,12 +780,14 @@ const app = {
 
         const renderCode = () => {
             return this.g9Target.map((row, r) => `
-                <div style="display:flex; align-items:center; gap:5px; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:5px; margin-bottom:8px;">
                     <span style="font-size:1.2rem; color:#888; font-weight:bold; margin-right:10px; min-width:80px; text-align:left;">Baris ${r+1}: </span> 
-                    ${row.map(val => {
-                        let isBlack = val === 1;
-                        return `<div style="width:25px; height:25px; background:${isBlack ? '#2c3e50' : 'white'}; border:2px solid #ccc; border-radius:5px;"></div>`;
-                    }).join('')}
+                    <div style="display:flex; gap:2px; background:#ddd; padding:3px; border-radius:6px;">
+                        ${row.map(val => {
+                            let isBlack = val === 1;
+                            return `<div style="width:22px; height:22px; background:${isBlack ? '#2c3e50' : 'white'}; border-radius:3px;"></div>`;
+                        }).join('')}
+                    </div>
                 </div>
             `).join('');
         };
