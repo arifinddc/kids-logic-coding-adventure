@@ -5,3 +5,8 @@ references/
 action.md
 LISTGAMES.md
 ASSETS.md
+
+# Tumpukan Sementara
+scratch/
+node_modules/
+.DS_Store
