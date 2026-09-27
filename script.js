@@ -516,11 +516,29 @@ const app = {
     // GAME 3: KODING SIMBOL (Variables / Logic)
     // ==========================================
     initGame3() {
-        const symbols = [
-            { icon: '🦊', val: 1 }, { icon: '🐻', val: 2 }, 
-            { icon: '🐥', val: 3 }, { icon: '🦌', val: 4 },
-            { icon: '🦒', val: 5 }, { icon: '🐯', val: 6 }
-        ];
+        const data = loadData();
+        let allSkins = [];
+        // Masukkan skin hewan & robot yang dimiliki
+        data.ownedSkins.animals.forEach(id => {
+            let item = SKIN_CATALOG.animals.find(s => s.id === id);
+            if(item) allSkins.push({ icon: item.emoji });
+        });
+        data.ownedSkins.robot.forEach(id => {
+            let item = SKIN_CATALOG.robot.find(s => s.id === id);
+            if(item) allSkins.push({ icon: item.emoji });
+        });
+        // Jika kurang dari 6, tambahkan secara acak dari katalog
+        let fallback = [...SKIN_CATALOG.animals, ...SKIN_CATALOG.robot].sort(() => 0.5 - Math.random());
+        for(let s of fallback) {
+            if (allSkins.length >= 6) break;
+            if (!allSkins.find(x => x.icon === s.emoji)) {
+                allSkins.push({ icon: s.emoji });
+            }
+        }
+        // Berikan nilai acak 1 sampai 6 ke 6 simbol unik
+        let vals = [1, 2, 3, 4, 5, 6].sort(() => 0.5 - Math.random());
+        allSkins.slice(0,6).forEach((s, i) => s.val = vals[i]);
+        const symbols = allSkins.slice(0,6).sort(() => 0.5 - Math.random());
 
         // Tampilkan SEMUA simbol di kamus (dictionary)
         const dictHtml = symbols.map(s => `<div class="dict-item"><span>${s.icon}</span><span>= ${s.val}</span></div>`).join('');
@@ -937,59 +955,50 @@ const app = {
     // GAME 7: KONDISI CUACA (If-Else)
     // ==========================================
     initGame7() {
-        const weatherTypes = [
-            { id: 'hujan', emoji: '🌧️', name: 'Hujan' },
-            { id: 'cerah', emoji: '☀️', name: 'Cerah' },
-            { id: 'salju', emoji: '❄️', name: 'Salju' }
-        ];
-        const gearTypes = [
-            { id: 'payung', emoji: '☂️' },
-            { id: 'kacamata', emoji: '🕶️' },
-            { id: 'jaket', emoji: '🧥' }
+        const rulePool = [
+            { wId: 'hujan', wEmoji: '🌧️', wName: 'Hujan', gEmoji: '☂️' },
+            { wId: 'cerah', wEmoji: '☀️', wName: 'Cerah', gEmoji: '🕶️' },
+            { wId: 'salju', wEmoji: '❄️', wName: 'Salju', gEmoji: '🧥' },
+            { wId: 'malam', wEmoji: '🌙', wName: 'Malam', gEmoji: '🔦' },
+            { wId: 'badai', wEmoji: '🌪️', wName: 'Badai', gEmoji: '🪖' }
         ];
 
-        let w1 = weatherTypes[0], w2 = weatherTypes[1];
-        let g1 = gearTypes[0], g2 = gearTypes[1];
-        
-        // Acak
-        if(Math.random() > 0.5) {
-            w1 = weatherTypes[1]; w2 = weatherTypes[2];
-            g1 = gearTypes[1]; g2 = gearTypes[2];
-        }
+        let shuffledRules = [...rulePool].sort(() => 0.5 - Math.random());
+        let r1 = shuffledRules[0];
+        let r2 = shuffledRules[1];
 
         this.g7Rules = {};
-        this.g7Rules[w1.id] = null;
-        this.g7Rules[w2.id] = null;
+        this.g7Rules[r1.wId] = null;
+        this.g7Rules[r2.wId] = null;
         
         const renderUI = () => {
             const getGear = (wId) => {
-                let g = gearTypes.find(x => x.id === this.g7Rules[wId]);
-                return g ? g.emoji : '❓';
+                return this.g7Rules[wId] || '❓';
             };
 
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:10px;">Siapkan perlengkapan sesuai cuaca (IF-ELSE)!</div>
+                <div class="subtitle" style="margin-bottom:10px;">Siapkan perlengkapan sesuai kondisi (IF-ELSE)!</div>
                 <div style="background:#e8f4f8; padding:15px; border-radius:10px; border:2px dashed #b8daff; margin-bottom:20px; font-size:1.2rem; color:#004085; text-align:center;">
                     <b>ATURAN HARI INI:</b><br>
-                    JIKA cuaca <b>${w1.name} ${w1.emoji}</b> pakai <b>${g1.emoji}</b>.<br>
-                    JIKA cuaca <b>${w2.name} ${w2.emoji}</b> pakai <b>${g2.emoji}</b>.
+                    JIKA cuaca <b>${r1.wName} ${r1.wEmoji}</b> pakai <b>${r1.gEmoji}</b>.<br>
+                    JIKA cuaca <b>${r2.wName} ${r2.wEmoji}</b> pakai <b>${r2.gEmoji}</b>.
                 </div>
                 
                 <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-bottom:30px;">
                     <!-- Aturan 1 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">${w1.emoji}</span>
+                        <span style="font-size:3rem;">${r1.wEmoji}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('${w1.id}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(w1.id)}</button>
+                        <button onclick="app.toggleRule7('${r1.wId}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(r1.wId)}</button>
                     </div>
                     
                     <!-- Aturan 2 -->
                     <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
                         <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
-                        <span style="font-size:3rem;">${w2.emoji}</span>
+                        <span style="font-size:3rem;">${r2.wEmoji}</span>
                         <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
-                        <button onclick="app.toggleRule7('${w2.id}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(w2.id)}</button>
+                        <button onclick="app.toggleRule7('${r2.wId}')" style="font-size:2.5rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:white;">${getGear(r2.wId)}</button>
                     </div>
                 </div>
 
@@ -998,7 +1007,7 @@ const app = {
         };
 
         this.toggleRule7 = (wId) => {
-            const options = [null, 'payung', 'kacamata', 'jaket'];
+            const options = [null, '☂️', '🕶️', '🧥', '🔦', '🪖'];
             let idx = options.indexOf(this.g7Rules[wId]);
             idx = (idx + 1) % options.length;
             this.g7Rules[wId] = options[idx];
@@ -1006,7 +1015,7 @@ const app = {
         };
 
         this.checkWin7 = () => {
-            if(this.g7Rules[w1.id] === g1.id && this.g7Rules[w2.id] === g2.id) {
+            if(this.g7Rules[r1.wId] === r1.gEmoji && this.g7Rules[r2.wId] === r2.gEmoji) {
                 this.showFeedback(true);
             } else {
                 this.showFeedback(false);
@@ -1145,13 +1154,31 @@ const app = {
     // GAME 9: KODING FUNGSI (Functions)
     // ==========================================
     initGame9() {
-        const tasks = [
-            { name: 'PanenApel', steps: ['➡️', '⬆️', '🍎'], desc: 'Maju, Naik, lalu Petik Apel' },
-            { name: 'BeriMakanKucing', steps: ['⬅️', '⬇️', '🐟'], desc: 'Kiri, Turun, lalu Beri Ikan' },
-            { name: 'SiramBunga', steps: ['➡️', '➡️', '💧'], desc: 'Maju, Maju, lalu Siram Air' }
+        const items = [
+            { emoji: '🍎', name: 'PanenApel', action: 'Petik Apel' },
+            { emoji: '🐟', name: 'BeriMakan', action: 'Beri Ikan' },
+            { emoji: '💧', name: 'SiramBunga', action: 'Siram Air' },
+            { emoji: '⚽', name: 'TendangBola', action: 'Tendang Bola' },
+            { emoji: '🔑', name: 'BukaKunci', action: 'Buka Kunci' },
+            { emoji: '🎁', name: 'AmbilKado', action: 'Ambil Kado' }
+        ];
+        const dirs = [
+            { id: '➡️', name: 'Kanan' },
+            { id: '⬅️', name: 'Kiri' },
+            { id: '⬆️', name: 'Atas' },
+            { id: '⬇️', name: 'Bawah' }
         ];
         
-        let t = tasks[Math.floor(Math.random() * tasks.length)];
+        let i1 = dirs[Math.floor(Math.random() * dirs.length)];
+        let i2 = dirs[Math.floor(Math.random() * dirs.length)];
+        let it = items[Math.floor(Math.random() * items.length)];
+
+        const t = {
+            name: it.name,
+            steps: [i1.id, i2.id, it.emoji],
+            desc: `${i1.name}, ${i2.name}, lalu ${it.action}`
+        };
+
         this.g9Seq = [null, null, null];
         
         const renderUI = () => {
@@ -1175,7 +1202,7 @@ const app = {
         };
 
         this.toggleFunc9 = (i) => {
-            const opts = [null, '➡️', '⬅️', '⬆️', '⬇️', '🍎', '🐟', '💧'];
+            const opts = [null, '➡️', '⬅️', '⬆️', '⬇️', '🍎', '🐟', '💧', '⚽', '🔑', '🎁'];
             let idx = opts.indexOf(this.g9Seq[i]);
             idx = (idx + 1) % opts.length;
             this.g9Seq[i] = opts[idx];
