@@ -405,7 +405,7 @@ const app = {
     },
 
     loadMultiplayer() {
-        this.el.mpFeedback.classList.add('hidden');
+        this.el.mpFeedback.style.display = 'none';
         this.el.mpTopContent.innerHTML = '';
         this.el.mpBottomContent.innerHTML = '';
         
@@ -422,7 +422,7 @@ const app = {
         SFX.reward();
         this.el.mpWinnerText.innerText = `🎉 PEMAIN ${player} MENANG! 🎉`;
         this.el.mpWinnerText.style.color = player === 1 ? '#81ecec' : '#ffeaa7';
-        this.el.mpFeedback.classList.remove('hidden');
+        this.el.mpFeedback.style.display = 'flex';
         confetti({ particleCount: 300, spread: 150, origin: { y: 0.5 } });
     },
 
@@ -1711,7 +1711,8 @@ const app = {
         }
         
         // Pastikan tidak dalam keadaan sudah terurut
-        let sortedNums = [...nums].sort((a,b) => a-b);
+        this.g12IsAscending = Math.random() > 0.5;
+        let sortedNums = [...nums].sort((a,b) => this.g12IsAscending ? (a-b) : (b-a));
         if (JSON.stringify(nums) === JSON.stringify(sortedNums)) {
             nums.reverse();
         }
@@ -1729,8 +1730,9 @@ const app = {
                 `;
             }).join('');
 
+            const orderText = this.g12IsAscending ? "TERKECIL ke TERBESAR" : "TERBESAR ke TERKECIL";
             this.el.gameContent.innerHTML = `
-                <div class="subtitle" style="margin-bottom:10px;">Urutkan kotak dari yang TERKECIL ke TERBESAR!</div>
+                <div class="subtitle" style="margin-bottom:10px;">Urutkan kotak dari yang <strong style="color:var(--primary);">${orderText}</strong>!</div>
                 <div class="subtitle" style="font-size:1.1rem; color:#555; margin-bottom:30px;">Klik 2 kotak secara bergantian untuk menukar posisinya (Swap).</div>
                 
                 <div style="background:#ecf0f1; border-bottom:10px solid #bdc3c7; padding:40px 20px; border-radius:20px; margin-bottom:30px; display:flex; justify-content:center; gap:20px;">
@@ -1763,9 +1765,10 @@ const app = {
         this.checkWin12 = () => {
             let win = true;
             for(let i=0; i<this.g12Nums.length - 1; i++) {
-                if (this.g12Nums[i] > this.g12Nums[i+1]) {
-                    win = false;
-                    break;
+                if (this.g12IsAscending) {
+                    if (this.g12Nums[i] > this.g12Nums[i+1]) { win = false; break; }
+                } else {
+                    if (this.g12Nums[i] < this.g12Nums[i+1]) { win = false; break; }
                 }
             }
             this.showFeedback(win);
