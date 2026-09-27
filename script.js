@@ -46,6 +46,18 @@ const app = {
         } else if (this.currentGame === 5) {
             this.el.gameTitle.innerText = "🖌️ Koding Pola Warna";
             this.initGame5();
+        } else if (this.currentGame === 6) {
+            this.el.gameTitle.innerText = "🔁 Koding Pengulangan";
+            this.initGame6();
+        } else if (this.currentGame === 7) {
+            this.el.gameTitle.innerText = "🚦 Koding Kondisi";
+            this.initGame7();
+        } else if (this.currentGame === 8) {
+            this.el.gameTitle.innerText = "🐛 Tangkap Kutu (Debug)";
+            this.initGame8();
+        } else if (this.currentGame === 9) {
+            this.el.gameTitle.innerText = "👾 Koding Piksel";
+            this.initGame9();
         }
     },
 
@@ -464,5 +476,324 @@ const app = {
         };
 
         this.drawUI5();
+    },
+
+    // ==========================================
+    // GAME 6: PENGULANGAN (Looping)
+    // ==========================================
+    initGame6() {
+        const size = 6;
+        let playerPos = 0;
+        let targetPos = Math.floor(Math.random() * 2) + 3; // 3 or 4
+        let loopCount = 1;
+        let isRunning = false;
+
+        const drawGrid = () => {
+            let html = `<div style="display:flex; justify-content:center; gap:5px; margin-bottom:20px;">`;
+            for(let i=0; i<size; i++) {
+                let icon = '';
+                if(i === playerPos) icon = '🚗';
+                else if(i === targetPos) icon = '🏠';
+                html += `<div style="width:60px; height:60px; border:2px solid #ccc; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; background:white;">${icon}</div>`;
+            }
+            html += `</div>`;
+            return html;
+        };
+
+        const renderUI = () => {
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px;">Gunakan <b>Loop (Pengulangan)</b> agar mobil sampai rumah!</div>
+                <div id="g6-grid">${drawGrid()}</div>
+                <div style="background:#f0f0f0; padding:20px; border-radius:15px; display:flex; align-items:center; justify-content:center; gap:20px; width:fit-content; margin:0 auto 20px;">
+                    <div style="font-size:3rem; border:3px solid #3498db; padding:10px; border-radius:10px; background:white;">➡️</div>
+                    <div style="font-size:2rem; font-weight:bold;">Diulang (x)</div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <button onclick="app.changeLoop6(-1)" style="font-size:2rem; width:50px; height:50px; border-radius:50%; border:none; background:#e74c3c; color:white; cursor:pointer;">-</button>
+                        <div style="font-size:3rem; font-weight:bold; width:40px; text-align:center;">${loopCount}</div>
+                        <button onclick="app.changeLoop6(1)" style="font-size:2rem; width:50px; height:50px; border-radius:50%; border:none; background:#2ecc71; color:white; cursor:pointer;">+</button>
+                    </div>
+                </div>
+                <button class="run-btn" onclick="app.runLoop6()" style="padding:15px 40px; font-size:1.5rem;">▶️ JALANKAN LOOP</button>
+            `;
+        };
+
+        this.changeLoop6 = (delta) => {
+            if(isRunning) return;
+            loopCount += delta;
+            if(loopCount < 1) loopCount = 1;
+            if(loopCount > 5) loopCount = 5;
+            renderUI();
+        };
+
+        this.runLoop6 = () => {
+            if(isRunning) return;
+            isRunning = true;
+            playerPos = 0;
+            let currentStep = 0;
+
+            const step = () => {
+                if(currentStep >= loopCount) {
+                    isRunning = false;
+                    this.showFeedback(playerPos === targetPos);
+                    return;
+                }
+                playerPos++;
+                
+                if (playerPos >= size) {
+                    isRunning = false;
+                    this.showFeedback(false); // nabrak ujung
+                    return;
+                }
+
+                document.getElementById('g6-grid').innerHTML = drawGrid();
+                currentStep++;
+                setTimeout(step, 600);
+            };
+            
+            step();
+        };
+
+        renderUI();
+    },
+
+    // ==========================================
+    // GAME 7: KONDISI (If-Else)
+    // ==========================================
+    initGame7() {
+        // Aturan: Apel -> Merah, Pisang -> Kuning
+        this.g7Rules = {
+            '🍎': null,
+            '🍌': null
+        };
+        
+        const renderUI = () => {
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:20px;">Buat aturan mesin sortir buah (IF-ELSE)!</div>
+                
+                <div style="display:flex; flex-direction:column; gap:20px; align-items:center; margin-bottom:30px;">
+                    <!-- Aturan 1 -->
+                    <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
+                        <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
+                        <span style="font-size:3rem;">🍎</span>
+                        <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
+                        <button onclick="app.toggleRule7('🍎')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${this.g7Rules['🍎'] === 'red' ? '#e74c3c' : this.g7Rules['🍎'] === 'yellow' ? '#f1c40f' : 'white'};">${this.g7Rules['🍎'] === 'red' ? '🟥' : this.g7Rules['🍎'] === 'yellow' ? '🟨' : '❓'}</button>
+                    </div>
+                    
+                    <!-- Aturan 2 -->
+                    <div style="display:flex; align-items:center; gap:15px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px solid #ddd;">
+                        <span style="font-size:1.5rem; font-weight:bold;">JIKA (IF)</span>
+                        <span style="font-size:3rem;">🍌</span>
+                        <span style="font-size:1.5rem; font-weight:bold;">MAKA ➡️</span>
+                        <button onclick="app.toggleRule7('🍌')" style="font-size:2rem; width:80px; height:60px; border-radius:10px; border:3px solid #ccc; cursor:pointer; background:${this.g7Rules['🍌'] === 'red' ? '#e74c3c' : this.g7Rules['🍌'] === 'yellow' ? '#f1c40f' : 'white'};">${this.g7Rules['🍌'] === 'red' ? '🟥' : this.g7Rules['🍌'] === 'yellow' ? '🟨' : '❓'}</button>
+                    </div>
+                </div>
+
+                <div class="subtitle" style="font-size:1.2rem; color:#7f8c8d; margin-bottom:20px;">*Klik kotak ❓ untuk mengubah pilihan keranjang</div>
+                <button class="run-btn" onclick="app.checkWin7()" style="padding:15px 40px; font-size:1.5rem;">✅ SIMPAN ATURAN</button>
+            `;
+        };
+
+        this.toggleRule7 = (fruit) => {
+            if (this.g7Rules[fruit] === null) this.g7Rules[fruit] = 'red';
+            else if (this.g7Rules[fruit] === 'red') this.g7Rules[fruit] = 'yellow';
+            else this.g7Rules[fruit] = null;
+            renderUI();
+        };
+
+        this.checkWin7 = () => {
+            if(this.g7Rules['🍎'] === 'red' && this.g7Rules['🍌'] === 'yellow') {
+                this.showFeedback(true);
+            } else {
+                this.showFeedback(false);
+            }
+        };
+
+        renderUI();
+    },
+
+    // ==========================================
+    // GAME 8: TANGKAP KUTU (Debugging)
+    // ==========================================
+    initGame8() {
+        const size = 4;
+        let startPos = {x:0, y:0};
+        let targetPos = {x:3, y:1};
+        
+        // Benar: R, R, R, D
+        // Buggy: R, D, R, D
+        this.g8Seq = ['R', 'D', 'R', 'D'];
+        let isRunning = false;
+
+        const drawGrid = (pX, pY) => {
+            let html = `<div class="grid-board" style="margin:0 auto 20px;">`;
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    let icon = '';
+                    if (x === pX && y === pY) icon = '🤖';
+                    else if (x === targetPos.x && y === targetPos.y) icon = '🔋';
+                    html += `<div class="grid-cell">${icon}</div>`;
+                }
+            }
+            html += `</div>`;
+            return html;
+        };
+
+        const renderUI = (pX, pY) => {
+            const cmds = ['U', 'D', 'L', 'R'];
+            const icons = {'U':'⬆️', 'D':'⬇️', 'L':'⬅️', 'R':'➡️'};
+            
+            let seqHtml = this.g8Seq.map((c, idx) => `
+                <button onclick="app.toggleBug8(${idx})" style="font-size:2rem; width:50px; height:50px; border-radius:10px; border:3px solid #e74c3c; cursor:pointer; background:white;">${icons[c]}</button>
+            `).join('');
+
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:10px;">Oh tidak! Ada BUG (kutu) di kode Robot!</div>
+                <div class="subtitle" style="margin-bottom:20px; font-size:1.1rem; color:#555;">Klik panah yang salah untuk memperbaikinya agar Robot sampai ke Baterai.</div>
+                
+                <div id="g8-grid-container">${drawGrid(pX, pY)}</div>
+                
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px; background:#f8f9fa; padding:15px; border-radius:15px; border:2px dashed #e74c3c; width:fit-content; margin:0 auto 20px;">
+                    ${seqHtml}
+                </div>
+                
+                <button class="run-btn" onclick="app.runDebug8()" style="padding:15px 40px; font-size:1.5rem;">▶️ TES KODE</button>
+            `;
+        };
+
+        this.toggleBug8 = (idx) => {
+            if(isRunning) return;
+            const cycle = {'U':'R', 'R':'D', 'D':'L', 'L':'U'};
+            this.g8Seq[idx] = cycle[this.g8Seq[idx]];
+            renderUI(startPos.x, startPos.y);
+        };
+
+        this.runDebug8 = () => {
+            if(isRunning) return;
+            isRunning = true;
+            let pX = startPos.x;
+            let pY = startPos.y;
+            let step = 0;
+
+            const executeStep = () => {
+                if (step >= this.g8Seq.length) {
+                    isRunning = false;
+                    if (pX === targetPos.x && pY === targetPos.y) {
+                        setTimeout(() => this.showFeedback(true), 300);
+                    } else {
+                        this.showFeedback(false);
+                    }
+                    return;
+                }
+
+                let cmd = this.g8Seq[step];
+                let nextX = pX;
+                let nextY = pY;
+
+                if (cmd === 'U') nextY -= 1;
+                else if (cmd === 'D') nextY += 1;
+                else if (cmd === 'L') nextX -= 1;
+                else if (cmd === 'R') nextX += 1;
+
+                if (nextX < 0 || nextX >= size || nextY < 0 || nextY >= size) {
+                    isRunning = false;
+                    this.showFeedback(false);
+                    return;
+                }
+
+                pX = nextX;
+                pY = nextY;
+                
+                document.getElementById('g8-grid-container').innerHTML = drawGrid(pX, pY);
+                step++;
+                setTimeout(executeStep, 500);
+            };
+
+            executeStep();
+        };
+
+        renderUI(startPos.x, startPos.y);
+    },
+
+    // ==========================================
+    // GAME 9: KODING PIKSEL (Binary/Grid Art)
+    // ==========================================
+    initGame9() {
+        // Target shape: a simple + sign
+        // 0 1 0
+        // 1 1 1
+        // 0 1 0
+        this.g9Target = [
+            [0, 1, 0],
+            [1, 1, 1],
+            [0, 1, 0]
+        ];
+
+        this.g9Grid = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ];
+
+        const renderCode = () => {
+            return this.g9Target.map((row, r) => `
+                <div style="font-size:1.5rem; letter-spacing:5px; text-align:left;">
+                    <span style="font-size:1.2rem; color:#888;">Baris ${r+1}: </span> 
+                    ${row.map(val => val === 1 ? '⬛' : '⬜').join('')}
+                </div>
+            `).join('');
+        };
+
+        this.renderPixelGrid = () => {
+            let html = `<div style="display:grid; grid-template-columns:repeat(3, 80px); gap:5px; background:#ddd; padding:5px; border-radius:10px;">`;
+            for(let r=0; r<3; r++) {
+                for(let c=0; c<3; c++) {
+                    let isBlack = this.g9Grid[r][c] === 1;
+                    html += `<div onclick="app.togglePixel9(${r},${c})" style="width:80px; height:80px; background:${isBlack ? '#2c3e50' : 'white'}; cursor:pointer; border-radius:5px; transition:all 0.2s;"></div>`;
+                }
+            }
+            html += `</div>`;
+            return html;
+        };
+
+        const drawUI = () => {
+            this.el.gameContent.innerHTML = `
+                <div class="subtitle" style="margin-bottom:20px;">Warnai kotak sesuai kode rahasia di samping!</div>
+                
+                <div style="display:flex; justify-content:center; align-items:center; gap:40px; margin-bottom:30px; flex-wrap:wrap;">
+                    <!-- Code Guide -->
+                    <div style="background:#f8f9fa; padding:20px; border-radius:15px; border:2px dashed #ccc;">
+                        <div style="font-weight:bold; margin-bottom:10px; border-bottom:2px solid #ddd; padding-bottom:5px;">KODE GAMBAR:</div>
+                        ${renderCode()}
+                    </div>
+                    
+                    <!-- Drawing Grid -->
+                    <div id="g9-drawing-board">
+                        ${this.renderPixelGrid()}
+                    </div>
+                </div>
+
+                <button class="run-btn" onclick="app.checkWin9()" style="padding:15px 40px; font-size:1.5rem;">✅ SELESAI MENGGAMBAR</button>
+            `;
+        };
+
+        this.togglePixel9 = (r, c) => {
+            this.g9Grid[r][c] = this.g9Grid[r][c] === 0 ? 1 : 0;
+            document.getElementById('g9-drawing-board').innerHTML = this.renderPixelGrid();
+        };
+
+        this.checkWin9 = () => {
+            let isWin = true;
+            for(let r=0; r<3; r++) {
+                for(let c=0; c<3; c++) {
+                    if(this.g9Grid[r][c] !== this.g9Target[r][c]) {
+                        isWin = false;
+                        break;
+                    }
+                }
+            }
+            this.showFeedback(isWin);
+        };
+
+        drawUI();
     }
 };
