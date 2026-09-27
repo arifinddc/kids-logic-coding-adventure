@@ -162,14 +162,23 @@ const app = {
                 }
 
                 let cmd = sequence[step];
-                if (cmd === 'U') playerPos.y -= 1;
-                else if (cmd === 'D') playerPos.y += 1;
-                else if (cmd === 'L') playerPos.x -= 1;
-                else if (cmd === 'R') playerPos.x += 1;
+                let nextX = playerPos.x;
+                let nextY = playerPos.y;
 
-                // Batasi agar tidak keluar grid
-                playerPos.x = Math.max(0, Math.min(size - 1, playerPos.x));
-                playerPos.y = Math.max(0, Math.min(size - 1, playerPos.y));
+                if (cmd === 'U') nextY -= 1;
+                else if (cmd === 'D') nextY += 1;
+                else if (cmd === 'L') nextX -= 1;
+                else if (cmd === 'R') nextX += 1;
+
+                // Cek tabrakan dengan batas grid (tembok)
+                if (nextX < 0 || nextX >= size || nextY < 0 || nextY >= size) {
+                    isRunning = false;
+                    this.showFeedback(false); // Nabrak tembok = Gagal!
+                    return;
+                }
+
+                playerPos.x = nextX;
+                playerPos.y = nextY;
 
                 document.getElementById('grid-container').innerHTML = drawGrid();
                 step++;
