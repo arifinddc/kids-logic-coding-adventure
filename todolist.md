@@ -9,8 +9,7 @@ Berikut adalah daftar fitur dan pengembangan masa depan untuk proyek ini:
   - Sinkronisasi progres antar-perangkat (bisa dimainkan di HP A, lalu lanjut di HP B).
 
 ## 🚀 Fitur Aktif / Dalam Pembahasan
-- [ ] Menyempurnakan Gacha dengan sistem rarity/tier (Common, Rare, Epic).
-
+*(Belum ada fitur tambahan yang sedang dikerjakan)*
 ## ✅ Selesai
 - [x] Perombakan RNG dan Variasi (Procedural Generation) untuk 12 Mini Games.
 - [x] Service Worker `stale-while-revalidate` (Absolute Offline PWA).
